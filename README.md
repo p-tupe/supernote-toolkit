@@ -7,5 +7,7 @@
     </picture>
 </div>
 <h1 align="center">Supernote Toolkit</h1>
-<p align="center">A collection of tools for supernote devices.</p>
+<p align="center">A collection of tools for tinkering with supernote files.</p>
 <br />
+
+> v0.1 coming soon!
