@@ -75,7 +75,7 @@ func NewLayer(file *os.File, notebook *Notebook, layerAddr int64) (*Layer, error
 			return nil, err
 		}
 
-		decodeRLE(encodedBytes, layer.Data)
+		decodeRLE(encodedBytes, notebook, layer.Data)
 	}
 
 	return layer, nil

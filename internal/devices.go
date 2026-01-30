@@ -1,25 +1,33 @@
 package internal
 
+import "image/color"
+
 type Device struct {
 	Name       string
-	Code       string
+	Model      string
 	PageWidth  int
 	PageHeight int
+	CodeMap    map[byte]color.Color
 }
 
 func NewDevice(notebook *Notebook) {
-	if notebook.Header.APPLY_EQUIPMENT == "N5" {
-		notebook.Device = A5X2()
+	switch notebook.Header.APPLY_EQUIPMENT {
+	case "N5":
+		notebook.Device = A5X2
+	default:
+		notebook.Device = A5X2
 	}
-
-	notebook.Device = A5X2()
 }
 
-func A5X2() *Device {
-	return &Device{
-		Name:       "Supernote Manta",
-		Code:       "A5X2",
-		PageWidth:  1920,
-		PageHeight: 2560,
+func (d *Device) ByteToColor(b byte) color.Color {
+	if b == 0 {
+		return color.Transparent
 	}
+
+	c, ok := d.CodeMap[b]
+	if !ok {
+		return color.RGBA{b, b, b, 255}
+	}
+
+	return c
 }

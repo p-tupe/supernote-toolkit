@@ -3,9 +3,13 @@ package internal
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"image"
+	"image/color"
+	"log"
 	"os"
 	"regexp"
+	"slices"
 )
 
 // Ensure that file stream starts with 'note' byte,
@@ -74,9 +78,62 @@ func parseMetadata(str string) map[string]string {
 	return metaData
 }
 
+// TODO: Partial
 // decodeRLE converts a stream of bytes compressed using
 // Ratta's RLE algorithm into corresponding color-codes
-// and maps them onto a canvas.
-func decodeRLE(data []byte, canvas *image.RGBA) {
+// and maps them onto a canvas using the device code-map.
+func decodeRLE(data []byte, notebook *Notebook, canvas *image.RGBA) {
+	expectedLen := notebook.Device.PageWidth * notebook.Device.PageHeight
+	decompressed := make([]byte, expectedLen)
 
+	var prevColCode, currColCode, prevLenCode, currLenCode byte
+	for i := 0; i < len(data)-1; {
+		currColCode, currLenCode = data[0], data[1]
+		currLen := int(((currLenCode & 0x7f) + 1) << 7)
+
+		if prevColCode != 0 {
+			prevLen := int(((prevLenCode & 0x7f) + 1) << 7)
+			if prevColCode == data[0] {
+				currLen = currLen + prevLen
+			} else {
+				decompressed = append(decompressed, processPair(prevColCode, prevLen)...)
+			}
+		} else if isLongRun(currLenCode) {
+			currLen = BLANK_LINE_LENGTH
+		} else if isMultiByte(currLenCode) {
+			prevColCode = currColCode
+			prevLenCode = currLenCode
+			continue
+		} else {
+			currLen = int(data[1]&0x7f) + 1
+		}
+
+		decompressed = append(decompressed, processPair(currColCode, currLen)...)
+		i += 2
+	}
+
+	decompressed = slices.Clip(decompressed)
+
+	if len(decompressed) != expectedLen {
+		log.Println("Length did not match")
+	}
+
+	converted := make([]color.Color, len(decompressed))
+	for _, b := range decompressed {
+		converted = append(converted, notebook.Device.ByteToColor(b))
+	}
+
+	fmt.Println(converted)
 }
+
+func processPair(colorCode byte, length int) []byte {
+	d := make([]byte, length)
+	for range length {
+		d = append(d, colorCode)
+	}
+	return d
+}
+
+func isLongRun(l byte) bool { return l == 0xff }
+
+func isMultiByte(l byte) bool { return l&0x8f != 0 }
