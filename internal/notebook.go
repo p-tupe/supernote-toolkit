@@ -6,42 +6,37 @@ import (
 )
 
 type Notebook struct {
-	device *Device
-	footer *Footer
-	header *Header
-	pages  []*Page
+	Device *Device
+	Footer *Footer
+	Header *Header
+	Pages  []*Page
 }
 
 var ErrUnsupported = errors.New("Unsupported file format")
 
 func NewNotebook(file *os.File) (*Notebook, error) {
-	ok, err := isNote(file)
-	if err != nil {
+	if ok, err := isNote(file); err != nil {
 		return nil, err
 	} else if !ok {
 		return nil, ErrUnsupported
 	}
 
-	notebook := &Notebook{}
+	notebook := &Notebook{Pages: make([]*Page, 1)}
 
-	notebook.footer, err = NewFooter(file)
-	if err != nil {
+	if err := NewFooter(file, notebook); err != nil {
 		return nil, err
 	}
 
-	notebook.header, err = NewHeader(file, notebook.footer)
-	if err != nil {
+	if err := NewHeader(file, notebook); err != nil {
 		return nil, err
 	}
 
-	notebook.device = NewDevice(notebook.header)
+	NewDevice(notebook)
 
-	for _, addr := range notebook.footer.PageAddr {
-		page, err := NewPage(file, notebook.device, addr)
-		if err != nil {
+	for _, addr := range notebook.Footer.PAGES {
+		if err := NewPage(file, notebook, addr); err != nil {
 			return nil, err
 		}
-		notebook.pages = append(notebook.pages, page)
 	}
 
 	return notebook, nil

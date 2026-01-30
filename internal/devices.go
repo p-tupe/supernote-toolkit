@@ -1,26 +1,25 @@
 package internal
 
 type Device struct {
-	name       string
-	code       string
-	pageWidth  int
-	pageHeight int
+	Name       string
+	Code       string
+	PageWidth  int
+	PageHeight int
 }
 
-// Creates a new [Device] from a [Header]
-func NewDevice(header *Header) *Device {
-	if header.APPLY_EQUIPMENT == "N5" {
-		return A5X2()
+func NewDevice(notebook *Notebook) {
+	if notebook.Header.APPLY_EQUIPMENT == "N5" {
+		notebook.Device = A5X2()
 	}
 
-	return A5X2()
+	notebook.Device = A5X2()
 }
 
 func A5X2() *Device {
 	return &Device{
-		name:       "Supernote Manta",
-		code:       "A5X2",
-		pageWidth:  1920,
-		pageHeight: 2560,
+		Name:       "Supernote Manta",
+		Code:       "A5X2",
+		PageWidth:  1920,
+		PageHeight: 2560,
 	}
 }

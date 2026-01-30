@@ -2,7 +2,6 @@ package internal
 
 import (
 	"os"
-	"regexp"
 )
 
 type Header struct {
@@ -11,45 +10,19 @@ type Header struct {
 	HORIZONTAL_CHECK string
 }
 
-// Creates a new [Header] from [*os.File] and a [Footer]
-func NewHeader(file *os.File, footer *Footer) (*Header, error) {
-	headerStr, err := readBlock(file, footer.HeaderAddr)
+func NewHeader(file *os.File, notebook *Notebook) error {
+	headerStr, err := readBlock(file, notebook.Footer.FILE_FEATURE)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	header, err := parseHeaderStr(headerStr)
-	if err != nil {
-		return nil, err
+	metadata := parseMetadata(headerStr)
+
+	notebook.Header = &Header{
+		APPLY_EQUIPMENT:  metadata["APPLY_EQUIPMENT"],
+		FILE_RECOGN_TYPE: metadata["FILE_RECOGN_TYPE"],
+		HORIZONTAL_CHECK: metadata["HORIZONTAL_CHECK"],
 	}
 
-	return header, nil
-}
-
-// parseHeaderStr takes in a string with values of
-// form <key1:value1><key2:value2>... and returns
-// the them as a Header struct.
-func parseHeaderStr(headerStr string) (*Header, error) {
-	header := &Header{}
-
-	headerRegex, err := regexp.Compile(`<(\w+):(\w+)>`)
-	if err != nil {
-		return nil, err
-	}
-	matches := headerRegex.FindAllStringSubmatch(headerStr, -1)
-
-	for _, m := range matches {
-		key, value := m[1], m[2]
-
-		switch key {
-		case "APPLY_EQUIPMENT":
-			header.APPLY_EQUIPMENT = value
-		case "FILE_RECOGN_TYPE":
-			header.FILE_RECOGN_TYPE = value
-		case "HORIZONTAL_CHECK":
-			header.HORIZONTAL_CHECK = value
-		}
-	}
-
-	return header, nil
+	return nil
 }

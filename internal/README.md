@@ -31,11 +31,15 @@ Footer
 -----------------
 ```
 
+### Parser
+
 The first 4 bytes of a note are always the constant string "note". I use this to filter out non-.note files, in the `isNote` function.
 
 If we skip those 4 bytes, then the next 20 hold the `signature` string. We can use this to calculate the header address, but since we don't know for sure if the length of signature will remain the same, we use the header address from elsewhere.
 
-The last 4 bytes of the file contain the starting address of the "Footer" - set as `footerAddr` in code. If we convert the bytes from `footerAddr` to `EOF`, we get some info like: `<FILE_FEATURE:24><PAGE1:1687><PAGE2:4994>...` Where `FILE_FEATURE` represents the starting address of the "Header" - `headerAddr`, and the `<PAGE1:...>...` is named for starting address of each page in the notebook.
+The last 4 bytes of the file contain the starting address of the "Footer" - set as `footerAddr` in code. If we convert the bytes from `footerAddr` to `EOF`, we get some info like: `<FILE_FEATURE:24><PAGE1:1687><PAGE2:4994>...` Where `FILE_FEATURE` represents the starting address of the "Header", and the `<PAGE1:...>...` is named for starting address of each page in the notebook.
+
+I named such strings as `metadata` and use the function `parseMetadata` in `utils.go` that uses a regex to pull the above into a map, which we then parse into structs as applicable.
 
 The address is stored as bytes, which we need to convert into little-endian uint32 format and cast as uint64 numbers to use for seeking location in the file.
 
@@ -51,4 +55,8 @@ Then we refer to the page address in the footer and use `readBlock` on each to g
 
 Page data generally consists of layers and their details. Some of the keys we pick up from there are: `LAYERSEQ` - the sequence of layers, and the starting address of each layer. Note that the order in which layers are rendered is important.
 
-We follow the layer sequence and use the `layerAdder` with `readBlock` to read the metadata for each layer.
+We follow the layer sequence and use the `layerAdder` with `readBlock` to read the metadata for each layer. The metadata for each layer consists of a couple of keys we need to properly decrypt the layer, namely `LAYERPROTOCOL` and `LAYERBITMAP`.
+
+At this point, we have parsed all the info we need to decrypt and convert the .note file into something else.
+
+### Decrypter

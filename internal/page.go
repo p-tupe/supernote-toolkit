@@ -3,7 +3,6 @@ package internal
 import (
 	"errors"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -12,43 +11,40 @@ type Page struct {
 	LAYERSEQ []*Layer
 }
 
-func NewPage(file *os.File, device *Device, pageAddr int64) (*Page, error) {
+func NewPage(file *os.File, notebook *Notebook, pageAddr int64) error {
 	pageStr, err := readBlock(file, pageAddr)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	page, err := parsePageStr(file, pageStr)
+	page, err := parsePageStr(file, notebook, pageStr)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return page, nil
+	notebook.Pages = append(notebook.Pages, page)
+
+	return nil
 }
 
-func parsePageStr(file *os.File, pageStr string) (*Page, error) {
+func parsePageStr(file *os.File, notebook *Notebook, pageStr string) (*Page, error) {
 	page := &Page{}
 
-	layerRegex, err := regexp.Compile(`<(\w*?LAYER\w*?):(.*?)>`)
-	if err != nil {
-		return nil, err
-	}
-
-	matches := layerRegex.FindAllStringSubmatch(pageStr, -1)
+	matches := parseMetadata(pageStr)
 
 	layerSeq := []string{}
 	layerAddr := map[string]int64{}
-	for _, m := range matches {
-		switch m[1] {
+	for k, v := range matches {
+		switch k {
 		case "LAYERSEQ":
-			layerSeq = strings.Split(m[2], ",")
+			layerSeq = strings.Split(v, ",")
 		case "BGLAYER", "MAINLAYER", "LAYER1", "LAYER2", "LAYER3":
-			v, err := strconv.ParseInt(m[2], 10, 64)
+			val, err := strconv.ParseInt(v, 0, 64)
 			if err != nil {
 				return nil, err
 			}
-			if v > 0 {
-				layerAddr[m[1]] = v
+			if val > 0 {
+				layerAddr[k] = val
 			}
 		}
 	}
@@ -58,7 +54,7 @@ func parsePageStr(file *os.File, pageStr string) (*Page, error) {
 	}
 
 	for _, l := range layerSeq {
-		newLayer, err := NewLayer(file, layerAddr[l])
+		newLayer, err := NewLayer(file, notebook, layerAddr[l])
 		if err != nil {
 			return nil, err
 		}
