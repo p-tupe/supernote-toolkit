@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
-	"image/png"
-	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -44,38 +43,39 @@ func NewLayer(file *os.File, notebook *Notebook, layerAddr int64) (*Layer, error
 
 	bounds := image.Rect(0, 0, notebook.Device.PageWidth, notebook.Device.PageHeight)
 	layer.Data = image.NewRGBA(bounds)
-	// TODO: White bg?
 
 	switch layer.LAYERPROTOCOL {
+	case "TEXT":
+
 	case "PNG":
-		fmt.Println("Decoding PNG...")
 		rawImg, err := readBlock(file, layerAddr)
 		if err != nil {
 			return nil, err
 		}
+
 		img, _, err := image.Decode(strings.NewReader(rawImg))
 		if err != nil {
 			return nil, err
 		}
-		draw.Draw(layer.Data, bounds, img, image.Pt(0, 0), draw.Over)
 
-		// TODO: Remove test check
-		file, err := os.Create("output.png")
-		if err != nil {
-			log.Fatalf("Error creating file: %v", err)
-		}
-		defer file.Close()
-		if err := png.Encode(file, layer.Data); err != nil {
-			log.Fatalf("Error encoding image: %v", err)
-		}
+		draw.Draw(layer.Data, bounds, img, image.Point{}, draw.Over)
+
 	case "RATTA_RLE":
-		fmt.Println("Decoding RLE...")
-		encodedBytes, err := readBlockAsBytes(file, layerAddr)
+		bitmapAddr, err := strconv.ParseInt(layer.LAYERBITMAP, 0, 64)
 		if err != nil {
 			return nil, err
 		}
 
-		decodeRLE(encodedBytes, notebook, layer.Data)
+		encodedBytes, err := readBlockAsBytes(file, bitmapAddr)
+		if err != nil {
+			return nil, err
+		}
+
+		decoded := decodeRLE(encodedBytes, notebook, bounds)
+		draw.Draw(layer.Data, bounds, decoded, image.Point{}, draw.Over)
+
+	default:
+		fmt.Printf("Unknown layer protocol: %v\n", layer.LAYERPROTOCOL)
 	}
 
 	return layer, nil

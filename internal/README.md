@@ -33,7 +33,7 @@ Footer
 
 ### Parser
 
-The first 4 bytes of a note are always the constant string "note". I use this to filter out non-.note files, in the `isNote` function.
+The first 4 bytes of a note are always the constant string "note". I use this to filter out non-note files, in the `isNote` function.
 
 If we skip those 4 bytes, then the next 20 hold the `signature` string. We can use this to calculate the header address, but since we don't know for sure if the length of signature will remain the same, we use the header address from elsewhere.
 
@@ -81,34 +81,33 @@ Here's a pseudo code for decoding a RATTA_RLE byte stream -
 
 ```
 for each current pair of [color code, length code] bytes in an RLE stream:
+        if a previous pair exists (from a multi-byte hold-over):
+            if previous color code == current color code:
+                new length = 1 + int(length code) + (int(previous length code & 0x7f) + 1) << 7
+                process pair as [color code, new length]
 
-    if a previous pair exists (from multi-byte length):
+            else if color codes are not same:
+                prev length = (int(previous length code & 0x7f) + 1) << 7
+                process pair as [prev color code, prev length]
 
-        if previous color code is same as current color code:
-            previous length + 1
+                length = 1 + int(length code)
+                process pair as [color code, length]
 
-        else if the previous color code is different from current:
-            process the previous pair,
-            then process the current pair
-
-    if no previous pair exists:
-
-        if length code == 0xff (is long run):
-            process pair as [color code, 0x4000] // 16384
+        if length code == 0xff (is long run / blank line):
+            blank line length = 0x4000
+            process pair as [color code, blank line length]
 
         else if length code's most significant bit is set (is multi-byte length):
-            set previous pair as [color code, length code]
-            (will trigger first condition on next loop)
+            put current [color code, length code] in hold-over
 
         else
-            process pair as [color code, length code]
+            length = 1 + int(length code)
+            process pair as [col, length]
 
 
-where processing a pair of [color code, length code]:
-    creating an array of [color code, ...] for given len = length code last 7 bits + 1
+where processing a pair of [color, length]:
+    creating an array of [col, ...] for given length
 ```
-
-> If the lengths differ, can pad with transparent bits as a workaround
 
 Now, the color code is not set in our typical RGB format - we have to use a `CodeMap` for convert from the color code bytes to specific color we need to represent. What we do is simple, assume we have a code map like so:
 
@@ -119,3 +118,9 @@ Now, the color code is not set in our typical RGB format - we have to use a `Cod
 Then we just loop each color code in the array we got from above and replace it with corresponding RGB color.
 
 Sometimes, we may encounter a code not representing a specific color - that is the "intensity" in greyscale format specifically for antialiasing handwriting. Just convert it to RGB directly.
+
+Ideally, the decoded array should equal width \* length of our device. Once we have all the decoded layers, we simply iterate over them from "LAYERSEQ" order and overlay them on top of each other.
+
+> If the lengths differ, can pad with transparent bits as a workaround
+
+Once all the layers are overlaid in order, our "Page" is ready! Follow the process for each page and Voila - our notebook is ready to read as a PNG.

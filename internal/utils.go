@@ -3,13 +3,11 @@ package internal
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"image"
-	"image/color"
+	c "image/color"
 	"log"
 	"os"
 	"regexp"
-	"slices"
 )
 
 // Ensure that file stream starts with 'note' byte,
@@ -78,62 +76,68 @@ func parseMetadata(str string) map[string]string {
 	return metaData
 }
 
-// TODO: Partial
 // decodeRLE converts a stream of bytes compressed using
 // Ratta's RLE algorithm into corresponding color-codes
 // and maps them onto a canvas using the device code-map.
-func decodeRLE(data []byte, notebook *Notebook, canvas *image.RGBA) {
-	expectedLen := notebook.Device.PageWidth * notebook.Device.PageHeight
-	decompressed := make([]byte, expectedLen)
+func decodeRLE(data []byte, notebook *Notebook, bounds image.Rectangle) image.Image {
+	expectedLen := bounds.Dx() * bounds.Dy()
+	decompressed := make([]byte, 0, expectedLen)
 
-	var prevColCode, currColCode, prevLenCode, currLenCode byte
-	for i := 0; i < len(data)-1; {
-		currColCode, currLenCode = data[0], data[1]
-		currLen := int(((currLenCode & 0x7f) + 1) << 7)
-
-		if prevColCode != 0 {
-			prevLen := int(((prevLenCode & 0x7f) + 1) << 7)
-			if prevColCode == data[0] {
-				currLen = currLen + prevLen
-			} else {
-				decompressed = append(decompressed, processPair(prevColCode, prevLen)...)
-			}
-		} else if isLongRun(currLenCode) {
-			currLen = BLANK_LINE_LENGTH
-		} else if isMultiByte(currLenCode) {
-			prevColCode = currColCode
-			prevLenCode = currLenCode
-			continue
-		} else {
-			currLen = int(data[1]&0x7f) + 1
+	holder := []byte{0, 0}
+	for i := 0; i < len(data); {
+		if i+1 >= len(data) {
+			break
 		}
 
-		decompressed = append(decompressed, processPair(currColCode, currLen)...)
+		colorCode, lengthCode := data[i], data[i+1]
 		i += 2
-	}
 
-	decompressed = slices.Clip(decompressed)
+		var length int
+
+		if holder[1] != 0 {
+			prevColCode, prevLenCode := holder[0], holder[1]
+			holder = []byte{0, 0}
+
+			if colorCode == prevColCode {
+				length = 1 + int(lengthCode) + (((int(prevLenCode & 0x7f)) + 1) << 7)
+			} else {
+				heldLen := (((int(prevLenCode & 0x7f)) + 1) << 7)
+				decompressed = append(decompressed, bytes.Repeat([]byte{prevColCode}, heldLen)...)
+				length = int(lengthCode) + 1
+			}
+		} else if lengthCode == 0xff {
+			length = 0x4000
+		} else if lengthCode&0x80 != 0 {
+			holder = []byte{colorCode, lengthCode}
+			continue
+		} else {
+			length = int(lengthCode) + 1
+		}
+
+		decompressed = append(decompressed, bytes.Repeat([]byte{colorCode}, length)...)
+	}
 
 	if len(decompressed) != expectedLen {
-		log.Println("Length did not match")
+		log.Println("Length mismatch, expected vs got:", expectedLen, len(decompressed))
 	}
 
-	converted := make([]color.Color, len(decompressed))
-	for _, b := range decompressed {
-		converted = append(converted, notebook.Device.ByteToColor(b))
+	img := image.NewRGBA(bounds)
+	i := 0
+	for y := range bounds.Max.Y {
+		for x := range bounds.Max.X {
+			col := getColorFromCode(decompressed[i], notebook.Device.CodeMap)
+			img.SetRGBA(x, y, col)
+			i++
+		}
 	}
 
-	fmt.Println(converted)
+	return img
 }
 
-func processPair(colorCode byte, length int) []byte {
-	d := make([]byte, length)
-	for range length {
-		d = append(d, colorCode)
+func getColorFromCode(b byte, codeMap map[byte]c.RGBA) c.RGBA {
+	col, ok := codeMap[b]
+	if !ok {
+		col = c.RGBA{b, b, b, 255}
 	}
-	return d
+	return col
 }
-
-func isLongRun(l byte) bool { return l == 0xff }
-
-func isMultiByte(l byte) bool { return l&0x8f != 0 }

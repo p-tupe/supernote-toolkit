@@ -7,7 +7,7 @@ type Device struct {
 	Model      string
 	PageWidth  int
 	PageHeight int
-	CodeMap    map[byte]color.Color
+	CodeMap    map[byte]color.RGBA
 }
 
 func NewDevice(notebook *Notebook) {
@@ -17,17 +17,4 @@ func NewDevice(notebook *Notebook) {
 	default:
 		notebook.Device = A5X2
 	}
-}
-
-func (d *Device) ByteToColor(b byte) color.Color {
-	if b == 0 {
-		return color.Transparent
-	}
-
-	c, ok := d.CodeMap[b]
-	if !ok {
-		return color.RGBA{b, b, b, 255}
-	}
-
-	return c
 }
