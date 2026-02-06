@@ -68,8 +68,8 @@ func NewNotebook(input string) (*Notebook, error) {
 	return notebook, nil
 }
 
-func (notebook *Notebook) ToPNG() {
-	opDir := filepath.Join("output", notebook.Name)
+func (notebook *Notebook) ToPNG(outputPath string) {
+	opDir := filepath.Join(outputPath, notebook.Name)
 	err := os.MkdirAll(opDir, 0o755)
 	if err != nil {
 		log.Fatalln(err)

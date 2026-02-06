@@ -9,9 +9,12 @@ import (
 var MIN_SIZE = fyne.NewSize(1024, 768)
 
 type AppData struct {
+	app        fyne.App
+	mainWindow fyne.Window
+
 	inputDir  fyne.ListableURI
 	outputDir fyne.ListableURI
-	window    fyne.Window
+	convertTo []string
 }
 
 func Execute() {
@@ -20,7 +23,7 @@ func Execute() {
 
 	var content, inputPage, outputPage, previewPage *fyne.Container
 
-	appData := &AppData{window: w}
+	appData := &AppData{app: a, mainWindow: w}
 
 	inputPage = GetInputPage(appData, func() {
 		content.Remove(inputPage)

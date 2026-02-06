@@ -31,5 +31,5 @@ func Execute() {
 		log.Fatalln(err)
 	}
 
-	notebook.ToPNG()
+	notebook.ToPNG("./output")
 }

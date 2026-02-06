@@ -3,6 +3,7 @@ package app
 import (
 	"log"
 	"slices"
+	"sync"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -17,7 +18,7 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 	l, err := appData.inputDir.List()
 
 	if err != nil {
-		dialog.NewError(err, appData.window).Show()
+		dialog.NewError(err, appData.mainWindow).Show()
 		return nil
 	}
 
@@ -41,17 +42,31 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 	)
 
 	pdfFolder := widget.NewLabel("Output at: " + appData.outputDir.Path())
-
 	pdfFolder.Importance = widget.MediumImportance
 	pdfFolder.TextStyle.Bold = true
 
 	convertBtn := widget.NewButton("Convert now!", func() {
-		notebook, err := i.NewNotebook(filteredList[0].Path())
-		if err != nil {
-			log.Fatalln(err)
-		}
+		fyne.DoAndWait(func() {
+			var wg sync.WaitGroup
+			for _, input := range filteredList {
+				wg.Go(func() {
+					notebook, err := i.NewNotebook(input.Path())
+					if err != nil {
+						dialog.NewError(err, appData.mainWindow).Show()
+					} else {
+						if slices.Contains(appData.convertTo, "Convert to PNG") {
+							notebook.ToPNG(appData.outputDir.Path())
+						}
 
-		notebook.ToPNG()
+						if slices.Contains(appData.convertTo, "Convert to PDF") {
+							log.Println("TODO: Converting ", notebook.Name, " to PDF")
+						}
+					}
+				})
+			}
+			wg.Wait()
+			dialog.NewInformation("Done!", "All .note files have been converted successfully!", appData.mainWindow).Show()
+		})
 	})
 	convertBtn.Importance = widget.HighImportance
 

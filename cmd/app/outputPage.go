@@ -7,10 +7,19 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var convertToOptions = []string{"Convert to PNG", "Convert to PDF"}
+
 func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
+	formatCheckbox := widget.NewCheckGroup(convertToOptions, func(s []string) {
+		appData.convertTo = s
+	})
+	formatCheckbox.Horizontal = true
+	formatCheckbox.Required = true
+	formatCheckbox.Selected = convertToOptions
+
 	outputDialog := dialog.NewFolderOpen(func(lu fyne.ListableURI, err error) {
 		if err != nil {
-			dialog.NewError(err, appData.window).Show()
+			dialog.NewError(err, appData.mainWindow).Show()
 			return
 		}
 
@@ -20,11 +29,11 @@ func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
 
 		appData.outputDir = lu
 		cb()
-	}, appData.window)
+	}, appData.mainWindow)
 	outputDialog.Resize(MIN_SIZE)
 
 	selectPDFFolderBtn := widget.NewButton("Select folder for .pdf files", func() { outputDialog.Show() })
 	selectPDFFolderBtn.Importance = widget.HighImportance
 
-	return container.NewCenter(selectPDFFolderBtn)
+	return container.NewBorder(nil, formatCheckbox, nil, nil, container.NewCenter(selectPDFFolderBtn))
 }

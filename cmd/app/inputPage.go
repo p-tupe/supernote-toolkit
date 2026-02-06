@@ -10,7 +10,7 @@ import (
 func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 	inputDialog := dialog.NewFolderOpen(func(lu fyne.ListableURI, err error) {
 		if err != nil {
-			dialog.NewError(err, appData.window).Show()
+			dialog.NewError(err, appData.mainWindow).Show()
 			return
 		}
 
@@ -20,7 +20,7 @@ func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 
 		appData.inputDir = lu
 		cb()
-	}, appData.window)
+	}, appData.mainWindow)
 	inputDialog.Resize(MIN_SIZE)
 
 	selectNoteFolderBtn := widget.NewButton("Select folder of .note files", func() { inputDialog.Show() })
