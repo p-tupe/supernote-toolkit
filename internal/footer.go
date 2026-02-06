@@ -58,13 +58,19 @@ func NewFooter(file *os.File, notebook *Notebook) error {
 // It is represented by the last 4 bytes of the file;
 // convert those bytes -> little-endian uint32 -> int64
 func getFooterAddress(file *os.File) (int64, error) {
-	end := make([]byte, 4)
-	file.Seek(-4, 2)
-	_, err := file.Read(end)
+	footerAddr := make([]byte, 4)
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return 0, err
+	}
+	fileInfo.Size()
+
+	_, err = file.ReadAt(footerAddr, fileInfo.Size()-4)
 	if err != nil {
 		return 0, err
 	}
 
-	addr := binary.LittleEndian.Uint32(end)
+	addr := binary.LittleEndian.Uint32(footerAddr)
 	return int64(addr), nil
 }

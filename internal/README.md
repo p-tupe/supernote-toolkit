@@ -77,28 +77,24 @@ However, color codes `a` & `c` may be same when length is too large to be held i
 
 Sometimes, the color code may be redundant when the length marker is used to signal other stuff.
 
-Here's a pseudo code for decoding a RATTA_RLE byte stream -
+Here's one possible pseudo code for decoding a RATTA_RLE byte stream -
 
 ```
 for each current pair of [color code, length code] bytes in an RLE stream:
-        if a previous pair exists (from a multi-byte hold-over):
-            if previous color code == current color code:
-                new length = 1 + int(length code) + (int(previous length code & 0x7f) + 1) << 7
-                process pair as [color code, new length]
-
-            else if color codes are not same:
-                prev length = (int(previous length code & 0x7f) + 1) << 7
-                process pair as [prev color code, prev length]
-
-                length = 1 + int(length code)
-                process pair as [color code, length]
 
         if length code == 0xff (is long run / blank line):
             blank line length = 0x4000
             process pair as [color code, blank line length]
 
         else if length code's most significant bit is set (is multi-byte length):
-            put current [color code, length code] in hold-over
+            get next pair of bytes as [next color code, next length code]
+            if next color code == color code:
+                length = 1 + int(next length code) + parsed(length code)
+                process pair as [col, length]
+            else
+                length = parsed(length code)
+                process pair as [col, length]
+
 
         else
             length = 1 + int(length code)
@@ -106,7 +102,12 @@ for each current pair of [color code, length code] bytes in an RLE stream:
 
 
 where processing a pair of [color, length]:
+    // just col repeated length times
     creating an array of [col, ...] for given length
+
+where parsed length code:
+    // last 7 bits + 1, left shifted 7 times
+    (int(length code & 0x7f) + 1) << 7
 ```
 
 Now, the color code is not set in our typical RGB format - we have to use a `CodeMap` for convert from the color code bytes to specific color we need to represent. What we do is simple, assume we have a code map like so:

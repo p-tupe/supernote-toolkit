@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"image"
 	c "image/color"
-	"log"
 	"os"
 	"regexp"
 )
@@ -39,20 +38,15 @@ func readBlock(file *os.File, startAddr int64) (string, error) {
 // readBlock takes a file and startAddr and returns a block of bytes
 // from startAddr to the end of block as is.
 func readBlockAsBytes(file *os.File, startAddr int64) ([]byte, error) {
-	_, err := file.Seek(startAddr, 0)
-	if err != nil {
-		return nil, err
-	}
-
 	block := make([]byte, 4)
-	_, err = file.Read(block)
+	_, err := file.ReadAt(block, startAddr)
 	if err != nil {
 		return nil, err
 	}
 	lenAddr := binary.LittleEndian.Uint32(block)
 
 	rawBytes := make([]byte, lenAddr)
-	_, err = file.Read(rawBytes)
+	_, err = file.ReadAt(rawBytes, startAddr+4)
 	if err != nil {
 		return nil, err
 	}
@@ -79,13 +73,13 @@ func parseMetadata(str string) map[string]string {
 // decodeRLE converts a stream of bytes compressed using
 // Ratta's RLE algorithm into corresponding color-codes
 // and maps them onto a canvas using the device code-map.
-func decodeRLE(data []byte, notebook *Notebook, bounds image.Rectangle) image.Image {
-	expectedLen := bounds.Dx() * bounds.Dy()
+func decodeRLE(data []byte, notebook *Notebook, img *image.RGBA) {
+	expectedLen := img.Bounds().Dx() * img.Bounds().Dy()
 	decompressed := make([]byte, 0, expectedLen)
 
-	holder := []byte{0, 0}
-	for i := 0; i < len(data); {
-		if i+1 >= len(data) {
+	i := 0
+	for {
+		if i+1 >= len(data)-1 {
 			break
 		}
 
@@ -94,22 +88,22 @@ func decodeRLE(data []byte, notebook *Notebook, bounds image.Rectangle) image.Im
 
 		var length int
 
-		if holder[1] != 0 {
-			prevColCode, prevLenCode := holder[0], holder[1]
-			holder = []byte{0, 0}
-
-			if colorCode == prevColCode {
-				length = 1 + int(lengthCode) + (((int(prevLenCode & 0x7f)) + 1) << 7)
-			} else {
-				heldLen := (((int(prevLenCode & 0x7f)) + 1) << 7)
-				decompressed = append(decompressed, bytes.Repeat([]byte{prevColCode}, heldLen)...)
-				length = int(lengthCode) + 1
-			}
-		} else if lengthCode == 0xff {
+		if lengthCode == 0xff {
 			length = 0x4000
 		} else if lengthCode&0x80 != 0 {
-			holder = []byte{colorCode, lengthCode}
-			continue
+			if i+3 >= len(data)-1 {
+				break
+			}
+			nextColCode, nextLenCode := data[i+2], data[i+3]
+
+			if colorCode == nextColCode {
+				length = 1 + int(nextLenCode) + (((int(lengthCode & 0x7f)) + 1) << 7)
+				i += 2
+			} else {
+				heldLen := (((int(lengthCode & 0x7f)) + 1) << 7)
+				decompressed = append(decompressed, bytes.Repeat([]byte{colorCode}, heldLen)...)
+			}
+
 		} else {
 			length = int(lengthCode) + 1
 		}
@@ -117,21 +111,11 @@ func decodeRLE(data []byte, notebook *Notebook, bounds image.Rectangle) image.Im
 		decompressed = append(decompressed, bytes.Repeat([]byte{colorCode}, length)...)
 	}
 
-	if len(decompressed) != expectedLen {
-		log.Println("Length mismatch, expected vs got:", expectedLen, len(decompressed))
+	width := img.Bounds().Dx()
+	for i, d := range decompressed {
+		col := getColorFromCode(d, notebook.Device.CodeMap)
+		img.SetRGBA(i%width, i/width, col)
 	}
-
-	img := image.NewRGBA(bounds)
-	i := 0
-	for y := range bounds.Max.Y {
-		for x := range bounds.Max.X {
-			col := getColorFromCode(decompressed[i], notebook.Device.CodeMap)
-			img.SetRGBA(x, y, col)
-			i++
-		}
-	}
-
-	return img
 }
 
 func getColorFromCode(b byte, codeMap map[byte]c.RGBA) c.RGBA {

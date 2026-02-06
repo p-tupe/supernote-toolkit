@@ -1,12 +1,15 @@
 package app
 
 import (
+	"log"
 	"slices"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+
+	i "github.com/p-tupe/supernote-toolkit/internal"
 )
 
 func GetPreviewPage(appData *AppData) *fyne.Container {
@@ -43,7 +46,12 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 	pdfFolder.TextStyle.Bold = true
 
 	convertBtn := widget.NewButton("Convert now!", func() {
-		// todo
+		notebook, err := i.NewNotebook(filteredList[0].Path())
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		notebook.ToPNG()
 	})
 	convertBtn.Importance = widget.HighImportance
 

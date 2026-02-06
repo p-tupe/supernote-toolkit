@@ -71,8 +71,7 @@ func NewLayer(file *os.File, notebook *Notebook, layerAddr int64) (*Layer, error
 			return nil, err
 		}
 
-		decoded := decodeRLE(encodedBytes, notebook, bounds)
-		draw.Draw(layer.Data, bounds, decoded, image.Point{}, draw.Over)
+		decodeRLE(encodedBytes, notebook, layer.Data)
 
 	default:
 		fmt.Printf("Unknown layer protocol: %v\n", layer.LAYERPROTOCOL)
