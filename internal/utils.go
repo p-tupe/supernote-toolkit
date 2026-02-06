@@ -10,15 +10,11 @@ import (
 	"regexp"
 )
 
-var ErrUnsupported = errors.New("Unsupported file format")
-
-const BLANK_LINE_LENGTH = 0x4000 // 16384
-
 // Ensure that file stream starts with 'note' byte,
 // otherwise unsupported
 func isNote(file *os.File) (bool, error) {
 	if filepath.Ext(file.Name()) != ".note" {
-		return false, ErrUnsupported
+		return false, errors.New("Unsupported file format")
 	}
 
 	start := make([]byte, 4)
@@ -89,7 +85,7 @@ func decodeRLE(data []byte, notebook *Notebook, img *image.RGBA) {
 	fillRun := func(colorCode byte, length int) {
 		col := notebook.Device.ToRGBA(colorCode)
 		r, g, b, a := col.R, col.G, col.B, col.A
-		end := min(off + length*4, len(pix))
+		end := min(off+length*4, len(pix))
 		for off < end {
 			pix[off] = r
 			pix[off+1] = g
@@ -100,36 +96,43 @@ func decodeRLE(data []byte, notebook *Notebook, img *image.RGBA) {
 	}
 
 	i := 0
-	for {
-		if i+1 >= len(data)-1 {
-			break
-		}
+	holderActive := false
+	var holderColor, holderLen byte
 
-		colorCode, lengthCode := data[i], data[i+1]
+	for i+1 < len(data) {
+		colorCode := data[i]
+		lengthCode := data[i+1]
 		i += 2
 
 		var length int
 
-		if lengthCode == 0xff {
+		if holderActive {
+			holderActive = false
+			if colorCode == holderColor {
+				length = 1 + int(lengthCode) + ((int(holderLen&0x7f) + 1) << 7)
+			} else {
+				fillRun(holderColor, (int(holderLen&0x7f)+1)<<7)
+				length = int(lengthCode) + 1
+			}
+		} else if lengthCode == 0xff {
 			length = 0x4000
 		} else if lengthCode&0x80 != 0 {
-			if i+3 >= len(data)-1 {
-				break
-			}
-			nextColCode, nextLenCode := data[i+2], data[i+3]
-
-			if colorCode == nextColCode {
-				length = 1 + int(nextLenCode) + (((int(lengthCode & 0x7f)) + 1) << 7)
-				i += 2
-			} else {
-				heldLen := (((int(lengthCode & 0x7f)) + 1) << 7)
-				fillRun(colorCode, heldLen)
-			}
-
+			holderActive = true
+			holderColor = colorCode
+			holderLen = lengthCode
+			continue
 		} else {
 			length = int(lengthCode) + 1
 		}
 
 		fillRun(colorCode, length)
+	}
+
+	if holderActive {
+		remaining := (len(pix) - off) / 4
+		tailLen := min((int(holderLen&0x7f)+1)<<7, remaining)
+		if tailLen > 0 {
+			fillRun(holderColor, tailLen)
+		}
 	}
 }

@@ -2,6 +2,8 @@
 
 This is my understanding of how the file is structured, and the steps taken to de-construct it.
 
+> Special thanks to [jya-dev](https://github.com/jya-dev/supernote-tool) and [RohanGautam](https://github.com/RohanGautam/supernote_pdf) for doing the hard work already!
+
 ### Structure
 
 ```
@@ -77,35 +79,38 @@ However, color codes `a` & `c` may be same when length is too large to be held i
 
 Sometimes, the color code may be redundant when the length marker is used to signal other stuff.
 
-Here's one possible pseudo code for decoding a RATTA_RLE byte stream -
+The decoder uses a "holder" state machine to handle multi-byte lengths. When the high bit is set on a length code, we can't resolve the run yet -- we hold the pair and read the next one before deciding:
 
 ```
-for each current pair of [color code, length code] bytes in an RLE stream:
+for each pair [color code, length code] in the RLE stream:
 
-        if length code == 0xff (is long run / blank line):
-            blank line length = 0x4000
-            process pair as [color code, blank line length]
+    if holder is set:
+        get [prev color color, prev length code] from holder
 
-        else if length code's most significant bit is set (is multi-byte length):
-            get next pair of bytes as [next color code, next length code]
-            if next color code == color code:
-                length = 1 + int(next length code) + parsed(length code)
-                process pair as [col, length]
-            else
-                length = parsed(length code)
-                process pair as [col, length]
+        if color code == prev color code:
+            combine into one long run as:
+                length = 1 + int(length code) + parsed(prev length code)
+            then process [color, length]
+        else if different color:
+            first process [prev color code, parsed(prev length code)]
+            then process [color code, int(length code) + 1]
 
-        else
-            length = 1 + int(length code)
-            process pair as [col, length]
+    else if length code == 0xff (blank line):
+        process [color, 0x4000]
 
+    else if length code has MSB set (multi-byte marker):
+        set holder as [color code, length code]
 
-where processing a pair of [color, length]:
-    // just col repeated length times
-    creating an array of [col, ...] for given length
+    else:
+        process [color code, int(length code) + 1]
 
-where parsed length code:
-    // last 7 bits + 1, left shifted 7 times
+if unresolved holder:
+    process [holder color, min(parsed(holder length code), remaining pixels)]
+
+where process [color code, length]:
+    fill `length` pixels with `rgba` wrt color code in code-to-rgba map
+
+where parsed(length code):
     (int(length code & 0x7f) + 1) << 7
 ```
 
@@ -114,3 +119,5 @@ Ideally, the decoded pixel count should equal width \* height of our device. Onc
 > If the lengths differ, clamping to the pixel buffer size acts as a workaround.
 
 Once all the layers are overlaid in order, our "Page" is ready! Pages are processed concurrently. Follow the process for each page and Voila - our notebook is ready to read as a PNG.
+
+As for PDF - I kinda just copied over what was already present (in other repos) for the structure and representation. It seems to work so I left it at that. Feel free to explore yourself though.

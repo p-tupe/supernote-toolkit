@@ -46,6 +46,7 @@ func NewLayer(file *os.File, notebook *Notebook, layerAddr int64) (*Layer, error
 
 	switch layer.LAYERPROTOCOL {
 	case "TEXT":
+	// TODO: Real-time text comes here
 
 	case "PNG":
 		rawImg, err := readBlock(file, layerAddr)
