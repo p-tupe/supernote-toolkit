@@ -3,15 +3,24 @@ package internal
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"image"
-	c "image/color"
 	"os"
+	"path/filepath"
 	"regexp"
 )
+
+var ErrUnsupported = errors.New("Unsupported file format")
+
+const BLANK_LINE_LENGTH = 0x4000 // 16384
 
 // Ensure that file stream starts with 'note' byte,
 // otherwise unsupported
 func isNote(file *os.File) (bool, error) {
+	if filepath.Ext(file.Name()) != ".note" {
+		return false, ErrUnsupported
+	}
+
 	start := make([]byte, 4)
 	_, err := file.Read(start)
 	if err != nil {
@@ -74,8 +83,21 @@ func parseMetadata(str string) map[string]string {
 // Ratta's RLE algorithm into corresponding color-codes
 // and maps them onto a canvas using the device code-map.
 func decodeRLE(data []byte, notebook *Notebook, img *image.RGBA) {
-	expectedLen := img.Bounds().Dx() * img.Bounds().Dy()
-	decompressed := make([]byte, 0, expectedLen)
+	pix := img.Pix
+	off := 0
+
+	fillRun := func(colorCode byte, length int) {
+		col := notebook.Device.ToRGBA(colorCode)
+		r, g, b, a := col.R, col.G, col.B, col.A
+		end := min(off + length*4, len(pix))
+		for off < end {
+			pix[off] = r
+			pix[off+1] = g
+			pix[off+2] = b
+			pix[off+3] = a
+			off += 4
+		}
+	}
 
 	i := 0
 	for {
@@ -101,27 +123,13 @@ func decodeRLE(data []byte, notebook *Notebook, img *image.RGBA) {
 				i += 2
 			} else {
 				heldLen := (((int(lengthCode & 0x7f)) + 1) << 7)
-				decompressed = append(decompressed, bytes.Repeat([]byte{colorCode}, heldLen)...)
+				fillRun(colorCode, heldLen)
 			}
 
 		} else {
 			length = int(lengthCode) + 1
 		}
 
-		decompressed = append(decompressed, bytes.Repeat([]byte{colorCode}, length)...)
+		fillRun(colorCode, length)
 	}
-
-	width := img.Bounds().Dx()
-	for i, d := range decompressed {
-		col := getColorFromCode(d, notebook.Device.CodeMap)
-		img.SetRGBA(i%width, i/width, col)
-	}
-}
-
-func getColorFromCode(b byte, codeMap map[byte]c.RGBA) c.RGBA {
-	col, ok := codeMap[b]
-	if !ok {
-		col = c.RGBA{b, b, b, 255}
-	}
-	return col
 }

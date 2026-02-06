@@ -11,20 +11,13 @@ type Page struct {
 	LAYERSEQ []*Layer
 }
 
-func NewPage(file *os.File, notebook *Notebook, pageAddr int64) error {
+func NewPage(file *os.File, notebook *Notebook, pageAddr int64) (*Page, error) {
 	pageStr, err := readBlock(file, pageAddr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	page, err := parsePageStr(file, notebook, pageStr)
-	if err != nil {
-		return err
-	}
-
-	notebook.Pages = append(notebook.Pages, page)
-
-	return nil
+	return parsePageStr(file, notebook, pageStr)
 }
 
 func parsePageStr(file *os.File, notebook *Notebook, pageStr string) (*Page, error) {

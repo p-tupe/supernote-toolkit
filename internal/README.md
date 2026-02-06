@@ -95,7 +95,6 @@ for each current pair of [color code, length code] bytes in an RLE stream:
                 length = parsed(length code)
                 process pair as [col, length]
 
-
         else
             length = 1 + int(length code)
             process pair as [col, length]
@@ -110,18 +109,8 @@ where parsed length code:
     (int(length code & 0x7f) + 1) << 7
 ```
 
-Now, the color code is not set in our typical RGB format - we have to use a `CodeMap` for convert from the color code bytes to specific color we need to represent. What we do is simple, assume we have a code map like so:
+Ideally, the decoded pixel count should equal width \* height of our device. Once we have all the decoded layers, we iterate over them in "LAYERSEQ" order and overlay them on top of each other.
 
-```
-{ a = Black, c = Light Gray, e = Dark Gray, g = White }
-```
+> If the lengths differ, clamping to the pixel buffer size acts as a workaround.
 
-Then we just loop each color code in the array we got from above and replace it with corresponding RGB color.
-
-Sometimes, we may encounter a code not representing a specific color - that is the "intensity" in greyscale format specifically for antialiasing handwriting. Just convert it to RGB directly.
-
-Ideally, the decoded array should equal width \* length of our device. Once we have all the decoded layers, we simply iterate over them from "LAYERSEQ" order and overlay them on top of each other.
-
-> If the lengths differ, can pad with transparent bits as a workaround
-
-Once all the layers are overlaid in order, our "Page" is ready! Follow the process for each page and Voila - our notebook is ready to read as a PNG.
+Once all the layers are overlaid in order, our "Page" is ready! Pages are processed concurrently. Follow the process for each page and Voila - our notebook is ready to read as a PNG.
