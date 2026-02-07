@@ -13,7 +13,7 @@ build:
 	$(MAKE) build-linux
 	$(MAKE) build-windows
 	$(MAKE) build-macos
-	$(MAKE) build-android
+	# $(MAKE) build-android
 	$(MAKE) move-dist
 	$(MAKE) flatten-dist
 	$(MAKE) checksum
@@ -26,7 +26,7 @@ build-windows:
 	fyne-cross windows -pull -arch=amd64,arm64 $(LDFLAGS)
 
 build-macos:
-	go build $(LDFLAGS) -o supernote-toolkit ./cmd/app
+	go build $(LDFLAGS) -o supernote-toolkit .
 	fyne package --os darwin --exe supernote-toolkit
 	rm -f supernote-toolkit
 	mkdir -p fyne-cross/dist/darwin-arm64
@@ -48,7 +48,7 @@ flatten-dist:
 	mv "dist/linux-arm/Supernote Toolkit.tar.xz" dist/linux-arm.tar.xz
 	mv "dist/windows-amd64/Supernote Toolkit.exe.zip" dist/windows-amd64.exe.zip
 	mv "dist/windows-arm64/Supernote Toolkit.exe.zip" dist/windows-arm64.exe.zip
-	mv "dist/android/Supernote Toolkit.apk" dist/android.apk
+	# mv "dist/android/Supernote Toolkit.apk" dist/android.apk
 	rm -rf dist/darwin-arm64 dist/linux-amd64 dist/linux-arm64 dist/linux-arm dist/windows-amd64 dist/windows-arm64 dist/android
 
 move-dist:

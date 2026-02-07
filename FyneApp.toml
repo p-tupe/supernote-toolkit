@@ -1,8 +1,8 @@
 Website = "https://github.com/p-tupe/supernote-toolkit"
 
 [Details]
-  Icon = "Icon.png"
-  Name = "Supernote Toolkit"
-  ID = "com.pritesh.supernote_toolkit"
-  Version = "1.0.0"
-  Build = 85
+Icon = "Icon.png"
+Name = "Supernote Toolkit"
+ID = "com.pritesh.supernote_toolkit"
+Version = "1.0.0"
+Build = 92

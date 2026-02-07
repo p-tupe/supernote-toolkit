@@ -19,7 +19,6 @@ Download the latest release from [GitHub Releases](https://github.com/p-tupe/sup
 | Linux (arm)           | [Supernote Toolkit.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm.tar.xz)       |
 | Windows (amd64)       | [Supernote Toolkit.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-amd64.exe.zip) |
 | Windows (arm64)       | [Supernote Toolkit.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-arm64.exe.zip) |
-| Android               | [Supernote Toolkit.apk](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/android.apk)               |
 
 Verify your download against `checksum.txt` (SHA-256) included in each release.
 
