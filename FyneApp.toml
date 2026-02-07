@@ -4,5 +4,5 @@ Website = "https://github.com/p-tupe/supernote-toolkit"
 Icon = "Icon.png"
 Name = "Supernote Toolkit"
 ID = "com.pritesh.supernote_toolkit"
-Version = "1.0.0"
-Build = 99
+Version = "0.1.0"
+Build = 107
