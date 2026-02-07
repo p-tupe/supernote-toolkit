@@ -6,7 +6,10 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-var MIN_SIZE = fyne.NewSize(1024, 768)
+var (
+	Version  = "dev"
+	MIN_SIZE = fyne.NewSize(1024, 768)
+)
 
 type AppData struct {
 	app        fyne.App
@@ -18,12 +21,12 @@ type AppData struct {
 }
 
 func Execute() {
-	a := app.NewWithID("supernote-toolkit-v0.1")
-	w := a.NewWindow("Supernote Toolkit v0.1")
+	a := app.NewWithID("supernote-toolkit-" + Version)
+	w := a.NewWindow("Supernote Toolkit " + Version)
 
 	var content, inputPage, outputPage, previewPage *fyne.Container
 
-	appData := &AppData{app: a, mainWindow: w}
+	appData := &AppData{app: a, mainWindow: w, convertTo: convertToOptions}
 
 	inputPage = GetInputPage(appData, func() {
 		content.Remove(inputPage)

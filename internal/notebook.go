@@ -87,7 +87,8 @@ func (notebook *Notebook) compositePage(p *Page) *image.RGBA {
 }
 
 func (notebook *Notebook) ToPNG(outputPath string) error {
-	opDir := filepath.Join(outputPath, notebook.Name)
+	basename := filepath.Base(notebook.Name)
+	opDir := filepath.Join(outputPath, basename)
 	err := os.MkdirAll(opDir, 0o755)
 	if err != nil {
 		return err
@@ -98,7 +99,7 @@ func (notebook *Notebook) ToPNG(outputPath string) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			op, err := os.Create(filepath.Join(opDir, "page-"+strconv.Itoa(i)+".png"))
+			op, err := os.Create(filepath.Join(opDir, "PAGE"+strconv.Itoa(i)+".png"))
 			if err != nil {
 				log.Println(err)
 				return

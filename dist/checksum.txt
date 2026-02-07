@@ -1,4 +1,7 @@
-SHA256 (dist/android/supernote-toolkit.apk) = 694a1cd5d4531ee4c40924d8058f9968611ff2f29f176b22a817269e0d1929f2
-SHA256 (dist/darwin-arm64/Supernote Toolkit.dmg) = 047cf6cf0ae7a8dc7ffdb91d2b5f644c5168b4c90ce9a65342fc4e295560f127
-SHA256 (dist/linux-arm64/Supernote Toolkit.tar.xz) = 9d3b7dd724e97926a275cad8126479f93e8c8b3dbc067e6f892c3c649c7bd1b8
-SHA256 (dist/windows-arm64/Supernote Toolkit.exe.zip) = 1f8ff8622a94da8f6d330c436d5f9c985205c6e3ddaac8eef9439f9788110f48
+SHA256 (dist/android.apk) = c487fdccbaf0cf79b3241bca9c94ecfe33d66a04882363b107e634991702f5d0
+SHA256 (dist/darwin-arm64.dmg) = 0bc80281ec61a33672cc007b402f1cb5c067d9e68e3b0cb5a8121d12e8728ac9
+SHA256 (dist/linux-amd64.tar.xz) = c70737a7cd9cfecbaccab502f4ee57213009ff8f1cd9944a47578f5bf8e6d35a
+SHA256 (dist/linux-arm.tar.xz) = ed48c13677c2447748a79e4cf4abcb701556c4c2ec8b16e0a9ce9a90bac5728b
+SHA256 (dist/linux-arm64.tar.xz) = 1d1d1b80dd3d56e973dbfe7226fe2f3e7b15f3368fa67149796ca794dc7aa025
+SHA256 (dist/windows-amd64.exe.zip) = fa11947e14d0b007f00b47407065cedc871353f09fde4cb978608b23f001c548
+SHA256 (dist/windows-arm64.exe.zip) = a2b2f53b54f28c1ab01917a1600b7e21ded24bcc00d094f751f57d42fb99c170

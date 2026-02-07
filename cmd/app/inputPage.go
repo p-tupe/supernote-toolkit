@@ -8,6 +8,9 @@ import (
 )
 
 func GetInputPage(appData *AppData, cb func()) *fyne.Container {
+	noFilesTxt := widget.NewLabel("You won't actually see the .note files; that's expected.")
+	noFilesTxt.Importance = widget.LowImportance
+
 	inputDialog := dialog.NewFolderOpen(func(lu fyne.ListableURI, err error) {
 		if err != nil {
 			dialog.NewError(err, appData.mainWindow).Show()
@@ -26,5 +29,5 @@ func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 	selectNoteFolderBtn := widget.NewButton("Select input folder of .note files", func() { inputDialog.Show() })
 	selectNoteFolderBtn.Importance = widget.HighImportance
 
-	return container.NewCenter(selectNoteFolderBtn)
+	return container.NewCenter(container.NewVBox(selectNoteFolderBtn, noFilesTxt))
 }
