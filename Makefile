@@ -29,6 +29,7 @@ build-macos:
 	go build $(LDFLAGS) -o supernote-toolkit .
 	fyne package --os darwin --exe supernote-toolkit
 	rm -f supernote-toolkit
+	codesign --force --deep -s - "Supernote Toolkit.app"
 	mkdir -p fyne-cross/dist/darwin-arm64
 	hdiutil create -volname "Supernote Toolkit" \
 		-srcfolder "Supernote Toolkit.app" \
