@@ -59,14 +59,16 @@ func NewNotebook(input string) (*Notebook, error) {
 	notebook.Pages = make([]*Page, len(notebook.Footer.PAGES))
 	var wg sync.WaitGroup
 	for i, addr := range notebook.Footer.PAGES {
-		wg.Go(func() {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			page, err := NewPage(file, notebook, addr)
 			if err != nil {
 				log.Println(err)
 			} else {
 				notebook.Pages[i] = page
 			}
-		})
+		}()
 	}
 
 	wg.Wait()
@@ -93,7 +95,9 @@ func (notebook *Notebook) ToPNG(outputPath string) error {
 
 	var wg sync.WaitGroup
 	for i, p := range notebook.Pages {
-		wg.Go(func() {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			op, err := os.Create(filepath.Join(opDir, "page-"+strconv.Itoa(i)+".png"))
 			if err != nil {
 				log.Println(err)
@@ -105,7 +109,7 @@ func (notebook *Notebook) ToPNG(outputPath string) error {
 			if err != nil {
 				log.Println(err)
 			}
-		})
+		}()
 	}
 
 	wg.Wait()
@@ -132,7 +136,9 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 	chunks := make([]pdfPageChunk, totalPages)
 	var wg sync.WaitGroup
 	for i, p := range notebook.Pages {
-		wg.Go(func() {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			canvas := notebook.compositePage(p)
 
 			var compressed bytes.Buffer
@@ -178,7 +184,7 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 				contentsObject: []byte(contentsObj),
 				imageObject:    imageObj.Bytes(),
 			}
-		})
+		}()
 	}
 	wg.Wait()
 

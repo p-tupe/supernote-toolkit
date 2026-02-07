@@ -32,7 +32,7 @@ func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
 	}, appData.mainWindow)
 	outputDialog.Resize(MIN_SIZE)
 
-	selectPDFFolderBtn := widget.NewButton("Select folder for .pdf files", func() { outputDialog.Show() })
+	selectPDFFolderBtn := widget.NewButton("Select folder for output files", func() { outputDialog.Show() })
 	selectPDFFolderBtn.Importance = widget.HighImportance
 
 	return container.NewBorder(nil, formatCheckbox, nil, nil, container.NewCenter(selectPDFFolderBtn))

@@ -23,7 +23,7 @@ func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 	}, appData.mainWindow)
 	inputDialog.Resize(MIN_SIZE)
 
-	selectNoteFolderBtn := widget.NewButton("Select folder of .note files", func() { inputDialog.Show() })
+	selectNoteFolderBtn := widget.NewButton("Select input folder of .note files", func() { inputDialog.Show() })
 	selectNoteFolderBtn.Importance = widget.HighImportance
 
 	return container.NewCenter(selectNoteFolderBtn)

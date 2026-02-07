@@ -46,20 +46,30 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 
 	var convertBtn *widget.Button
 	convertBtn = widget.NewButton("Convert now!", func() {
+		convertBtn.Disable()
+		convertBtn.SetText("Converting...")
 		var wg sync.WaitGroup
 		for _, input := range filteredList {
-			wg.Go(func() {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
 				notebook, err := i.NewNotebook(input.Path())
 				if err != nil {
 					dialog.NewError(err, appData.mainWindow).Show()
 				} else {
-					notebook.ToPNG(appData.outputDir.Path())
-					notebook.ToPDF(appData.outputDir.Path())
+					if slices.Contains(appData.convertTo, "Convert to PNG") {
+						notebook.ToPNG(appData.outputDir.Path())
+					}
+
+					if slices.Contains(appData.convertTo, "Convert to PDF") {
+						notebook.ToPDF(appData.outputDir.Path())
+					}
 				}
-			})
+			}()
 		}
 		wg.Wait()
 		dialog.NewInformation("Done!", "All .note files have been converted successfully!", appData.mainWindow).Show()
+		convertBtn.Enable()
 		convertBtn.SetText("Quit")
 		convertBtn.OnTapped = func() { appData.app.Quit() }
 	})
