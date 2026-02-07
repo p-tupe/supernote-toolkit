@@ -9,18 +9,18 @@ For now, it only converts a folder of .note files into corresponding png/pdf fil
 
 ## Install
 
-Download the latest release from [GitHub Releases](https://github.com/p-tupe/supernote-toolkit/releases).
+Download the latest release from below:
 
-| Platform              | Download                                                                                                                |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| macOS (Apple Silicon) | [Supernote Toolkit.dmg](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/darwin-arm64.dmg)          |
-| Linux (amd64)         | [Supernote Toolkit.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-amd64.tar.xz)     |
-| Linux (arm64)         | [Supernote Toolkit.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm64.tar.xz)     |
-| Linux (arm)           | [Supernote Toolkit.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm.tar.xz)       |
-| Windows (amd64)       | [Supernote Toolkit.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-amd64.exe.zip) |
-| Windows (arm64)       | [Supernote Toolkit.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-arm64.exe.zip) |
+| Platform              | Download                                                                |
+| --------------------- | ----------------------------------------------------------------------- |
+| macOS (Apple Silicon) | <a href="dist/darwin-arm64.dmg" download>darwin-arm64.dmg</a>           |
+| Linux (amd64)         | <a href="dist/linux-amd64.tar.xz" download>linux-amd64.tar.xz</a>       |
+| Linux (arm64)         | <a href="dist/linux-arm64.tar.xz" download>linux-arm64.tar.xz</a>       |
+| Linux (arm)           | <a href="dist/linux-arm.tar.xz" download>linux-arm.tar.xz</a>           |
+| Windows (amd64)       | <a href="dist/windows-amd64.exe.zip" download>windows-amd64.exe.zip</a> |
+| Windows (arm64)       | <a href="dist/windows-arm64.exe.zip" download>windows-arm64.exe.zip</a> |
 
-Verify your download against `checksum.txt` (SHA-256) included in each release.
+Verify your download against <a href="dist/checksum.txt" download>checksum.txt</a> (SHA-256) included in each release.
 
 ### macOS
 
