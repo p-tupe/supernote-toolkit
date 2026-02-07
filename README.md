@@ -3,6 +3,11 @@
 <p align="center">A collection of tools for tinkering with supernote files.</p>
 <br />
 
+## Showcase (v0.1.0)
+
+https://github.com/user-attachments/assets/944129de-6cde-452c-9e60-741618ff3739
+
+
 ## Features
 
 For now, it only converts a folder of .note files into corresponding png/pdf files. See [roadmap](#Roadmap) for more.
