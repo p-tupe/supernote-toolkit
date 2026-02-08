@@ -17,6 +17,7 @@ func main() {
 	png := flag.Bool("png", false, "Convert to PNG")
 	txt := flag.Bool("txt", false, "Extract to TXT")
 	recurse := flag.Bool("recurse", false, "Recurse directories")
+	_ = flag.Bool("force", false, "Convert every .note file (don't skip those already converted)")
 
 	flag.Parse()
 
