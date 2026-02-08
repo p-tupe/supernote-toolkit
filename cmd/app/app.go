@@ -15,9 +15,10 @@ type AppData struct {
 	app        fyne.App
 	mainWindow fyne.Window
 
-	inputDir  fyne.ListableURI
+	inputDir  string
 	outputDir fyne.ListableURI
 	convertTo []string
+	recurse   bool
 }
 
 func Execute() {

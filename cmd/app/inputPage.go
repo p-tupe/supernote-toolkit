@@ -8,6 +8,11 @@ import (
 )
 
 func GetInputPage(appData *AppData, cb func()) *fyne.Container {
+	recurseCheckbox := widget.NewCheck("Recurse folders", func(b bool) {
+		appData.recurse = b
+	})
+	recurseCheckbox.SetChecked(false)
+
 	noFilesTxt := widget.NewLabel("You won't actually see the .note files; that's expected.")
 	noFilesTxt.Importance = widget.LowImportance
 
@@ -21,7 +26,7 @@ func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 			return
 		}
 
-		appData.inputDir = lu
+		appData.inputDir = lu.Path()
 		cb()
 	}, appData.mainWindow)
 	inputDialog.Resize(MIN_SIZE)
@@ -29,5 +34,5 @@ func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 	selectNoteFolderBtn := widget.NewButton("Select input folder of .note files", func() { inputDialog.Show() })
 	selectNoteFolderBtn.Importance = widget.HighImportance
 
-	return container.NewCenter(container.NewVBox(selectNoteFolderBtn, noFilesTxt))
+	return container.NewBorder(nil, recurseCheckbox, nil, nil, container.NewCenter(container.NewVBox(selectNoteFolderBtn, noFilesTxt)))
 }

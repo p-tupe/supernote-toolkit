@@ -1,6 +1,7 @@
 package app
 
 import (
+	"path/filepath"
 	"slices"
 	"sync"
 
@@ -13,30 +14,21 @@ import (
 )
 
 func GetPreviewPage(appData *AppData) *fyne.Container {
-	filteredList := make([]fyne.URI, 0)
-	l, err := appData.inputDir.List()
-
+	allNotes, err := i.GetNotesFromDir(appData.inputDir, appData.recurse, "")
 	if err != nil {
 		dialog.NewError(err, appData.mainWindow).Show()
 		return nil
 	}
 
-	for _, n := range l {
-		if n.Extension() == ".note" {
-			filteredList = append(filteredList, n)
-		}
-	}
-	filteredList = slices.Clip(filteredList)
-
 	notesList := widget.NewList(
 		func() int {
-			return len(filteredList)
+			return len(allNotes)
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("List Item")
 		},
 		func(lii widget.ListItemID, co fyne.CanvasObject) {
-			co.(*widget.Label).SetText(filteredList[lii].Name())
+			co.(*widget.Label).SetText(filepath.Base(allNotes[lii].Path))
 		},
 	)
 
@@ -49,20 +41,22 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 		convertBtn.Disable()
 		convertBtn.SetText("Converting...")
 		var wg sync.WaitGroup
-		for _, input := range filteredList {
+		for _, input := range allNotes {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				notebook, err := i.NewNotebook(input.Path())
+				notebook, err := i.NewNotebook(input)
 				if err != nil {
 					dialog.NewError(err, appData.mainWindow).Show()
 				} else {
+					op := filepath.Join(appData.outputDir.Path(), input.Parents)
+
 					if slices.Contains(appData.convertTo, "Convert to PNG") {
-						notebook.ToPNG(appData.outputDir.Path())
+						notebook.ToPNG(op)
 					}
 
 					if slices.Contains(appData.convertTo, "Convert to PDF") {
-						notebook.ToPDF(appData.outputDir.Path())
+						notebook.ToPDF(op)
 					}
 				}
 			}()

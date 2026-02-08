@@ -1,11 +1,7 @@
 package main
 
-import (
-	"github.com/p-tupe/supernote-toolkit/cmd/app"
-	// "github.com/p-tupe/supernote-toolkit/cmd/cli"
-)
+import "github.com/p-tupe/supernote-toolkit/cmd/app"
 
 func main() {
 	app.Execute()
-	// cli.Execute()
 }

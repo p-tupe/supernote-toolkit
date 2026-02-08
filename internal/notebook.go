@@ -26,8 +26,8 @@ type Notebook struct {
 	Name   string
 }
 
-func NewNotebook(input string) (*Notebook, error) {
-	file, err := os.Open(input)
+func NewNotebook(input NoteFile) (*Notebook, error) {
+	file, err := os.Open(input.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +87,7 @@ func (notebook *Notebook) compositePage(p *Page) *image.RGBA {
 }
 
 func (notebook *Notebook) ToPNG(outputPath string) error {
-	basename := filepath.Base(notebook.Name)
-	opDir := filepath.Join(outputPath, basename)
+	opDir := filepath.Join(outputPath, notebook.Name)
 	err := os.MkdirAll(opDir, 0o755)
 	if err != nil {
 		return err

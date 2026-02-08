@@ -7,12 +7,13 @@
 
 https://github.com/user-attachments/assets/944129de-6cde-452c-9e60-741618ff3739
 
-
 ## Features
 
 For now, it only converts a folder of .note files into corresponding png/pdf files. See [roadmap](#Roadmap) for more.
 
 ## Install
+
+> You can also just `go get github.com/p-tupe/supernote-toolkit` if you have go installed
 
 Download the latest release from below:
 
@@ -48,10 +49,6 @@ make user-install # or ./supernote-toolkit
 
 Extract the zip and run `Supernote Toolkit.exe`. Windows may show a SmartScreen warning since the app is unsigned -- click "More info" then "Run anyway".
 
-### Android
-
-Enable "Install from unknown sources" in your device settings, then install the APK.
-
 ## Build from source
 
 Requires [Go](https://go.dev/dl/) 1.24+ and [Fyne](https://docs.fyne.io/started/) dependencies.
@@ -60,6 +57,13 @@ Requires [Go](https://go.dev/dl/) 1.24+ and [Fyne](https://docs.fyne.io/started/
 git clone https://github.com/p-tupe/supernote-toolkit.git
 cd supernote-toolkit
 go run .
+```
+
+## Use the CLI
+
+```bash
+go install github.com/p-tupe/supernote-toolkit/cmd/cli/supernote-toolkit@latest
+supernote-toolkit
 ```
 
 ## Roadmap
