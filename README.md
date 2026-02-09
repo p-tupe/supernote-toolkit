@@ -17,16 +17,16 @@ For now, it only converts a folder of .note files into corresponding png/pdf fil
 
 Download the latest release from below:
 
-| Platform              | Download                                                                                                                     |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| macOS (Apple Silicon) | <a href="https://github.com/p-tupe/supernote-toolkit/raw/main/dist/darwin-arm64.dmg" download>darwin-arm64.dmg</a>           |
-| Linux (amd64)         | <a href="https://github.com/p-tupe/supernote-toolkit/raw/main/dist/linux-amd64.tar.xz" download>linux-amd64.tar.xz</a>       |
-| Linux (arm64)         | <a href="https://github.com/p-tupe/supernote-toolkit/raw/main/dist/linux-arm64.tar.xz" download>linux-arm64.tar.xz</a>       |
-| Linux (arm)           | <a href="https://github.com/p-tupe/supernote-toolkit/raw/main/dist/linux-arm.tar.xz" download>linux-arm.tar.xz</a>           |
-| Windows (amd64)       | <a href="https://github.com/p-tupe/supernote-toolkit/raw/main/dist/windows-amd64.exe.zip" download>windows-amd64.exe.zip</a> |
-| Windows (arm64)       | <a href="https://github.com/p-tupe/supernote-toolkit/raw/main/dist/windows-arm64.exe.zip" download>windows-arm64.exe.zip</a> |
+| Platform              | Download                                                                                                                                                  |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| macOS (Apple Silicon) | [darwin-arm64.dmg](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/darwin-arm64.dmg)                                                 |
+| Linux (amd64)         | [linux-amd64.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-amd64.tar.xz)                                            |
+| Linux (arm64)         | [linux-arm64.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm64.tar.xz)                                            |
+| Linux (arm)           | [linux-arm.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm.tar.xz)                                                |
+| Windows (amd64)       | [windows-amd64.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-amd64.exe.zip)                                      |
+| Windows (arm64)       | [windows-arm64.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-arm64.exe.zip)                                      |
 
-Verify your download against <a href="https://github.com/p-tupe/supernote-toolkit/raw/main/dist/checksum.txt" download>checksum.txt</a> (SHA-256) included in each release.
+Verify your download against [checksum.txt](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/checksum.txt) (SHA-256) included in each release.
 
 ### macOS
 
