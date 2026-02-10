@@ -17,14 +17,14 @@ For now, it only converts a folder of .note files into corresponding png/pdf fil
 
 Download the latest release from below:
 
-| Platform              | Download                                                                                                                                                  |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| macOS (Apple Silicon) | [darwin-arm64.dmg](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/darwin-arm64.dmg)                                                 |
-| Linux (amd64)         | [linux-amd64.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-amd64.tar.xz)                                            |
-| Linux (arm64)         | [linux-arm64.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm64.tar.xz)                                            |
-| Linux (arm)           | [linux-arm.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm.tar.xz)                                                |
-| Windows (amd64)       | [windows-amd64.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-amd64.exe.zip)                                      |
-| Windows (arm64)       | [windows-arm64.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-arm64.exe.zip)                                      |
+| Platform              | Download                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| macOS (Apple Silicon) | [darwin-arm64.dmg](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/darwin-arm64.dmg)           |
+| Linux (amd64)         | [linux-amd64.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-amd64.tar.xz)       |
+| Linux (arm64)         | [linux-arm64.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm64.tar.xz)       |
+| Linux (arm)           | [linux-arm.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm.tar.xz)           |
+| Windows (amd64)       | [windows-amd64.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-amd64.exe.zip) |
+| Windows (arm64)       | [windows-arm64.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-arm64.exe.zip) |
 
 Verify your download against [checksum.txt](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/checksum.txt) (SHA-256) included in each release.
 
@@ -62,16 +62,23 @@ go run .
 ## Use the CLI
 
 ```bash
-go install github.com/p-tupe/supernote-toolkit/cmd/cli/supernote-toolkit@latest
+git clone https://github.com/p-tupe/supernote-toolkit.git
+cd supernote-toolkit
+go install cmd/cli/supernote-toolkit.go
 supernote-toolkit
 ```
 
 ## Roadmap
 
+### Done
+
+- [x] Option to recurse through sub-folders
+
 ### In-progress
 
 - [ ] Extract Text (from Realtime notes)
-- [ ] Option to recurse through sub-folders
+- [ ] Skip stale notes, convert only new ones
+- [ ] Horizontal orientation
 - [ ] Improve UI somehow
   - [ ] Make errors more visible
   - [ ] Show a log?
