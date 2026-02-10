@@ -5,17 +5,26 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+
+	i "github.com/p-tupe/supernote-toolkit/internal"
 )
 
-var convertToOptions = []string{"Convert to PNG", "Convert to PDF"}
+var convertToOptions = []string{i.ConvertPNG, i.ConvertPDF}
 
 func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
-	formatCheckbox := widget.NewCheckGroup(convertToOptions, func(s []string) {
+	convertCheckbox := widget.NewCheckGroup(convertToOptions, func(s []string) {
 		appData.convertTo = s
 	})
-	formatCheckbox.Horizontal = true
-	formatCheckbox.Required = true
-	formatCheckbox.Selected = convertToOptions
+	convertCheckbox.Horizontal = true
+	convertCheckbox.Required = true
+	convertCheckbox.Selected = convertToOptions
+
+	forceCheckbox := widget.NewCheck("Force convert stale notes", func(b bool) {
+		appData.force = b
+	})
+	forceCheckbox.SetChecked(false)
+
+	bottomOptions := container.NewHBox(convertCheckbox, forceCheckbox)
 
 	outputDialog := dialog.NewFolderOpen(func(lu fyne.ListableURI, err error) {
 		if err != nil {
@@ -27,7 +36,7 @@ func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
 			return
 		}
 
-		appData.outputDir = lu
+		appData.output = lu
 		cb()
 	}, appData.mainWindow)
 	outputDialog.Resize(MIN_SIZE)
@@ -35,5 +44,5 @@ func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
 	selectPDFFolderBtn := widget.NewButton("Select folder for output files", func() { outputDialog.Show() })
 	selectPDFFolderBtn.Importance = widget.HighImportance
 
-	return container.NewBorder(nil, formatCheckbox, nil, nil, container.NewCenter(selectPDFFolderBtn))
+	return container.NewBorder(nil, bottomOptions, nil, nil, container.NewCenter(selectPDFFolderBtn))
 }

@@ -87,7 +87,8 @@ func (notebook *Notebook) compositePage(p *Page) *image.RGBA {
 }
 
 func (notebook *Notebook) ToPNG(outputPath string) error {
-	opDir := filepath.Join(outputPath, notebook.Name)
+	name := strings.TrimSuffix(notebook.Name, filepath.Ext(notebook.Name))
+	opDir := filepath.Join(outputPath, name)
 	err := os.MkdirAll(opDir, 0o755)
 	if err != nil {
 		return err
@@ -204,13 +205,11 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 	writer.Write(header)
 	byteOffset += uint64(len(header))
 
-	// Object 1: Catalog
 	xrefOffsets[0] = byteOffset
 	catalog := []byte("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n")
 	writer.Write(catalog)
 	byteOffset += uint64(len(catalog))
 
-	// Object 2: Pages root
 	xrefOffsets[1] = byteOffset
 	var pageRefs strings.Builder
 	for i := range totalPages {
@@ -223,7 +222,6 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 	writer.WriteString(pagesRoot)
 	byteOffset += uint64(len(pagesRoot))
 
-	// Write page chunks
 	for i, chunk := range chunks {
 		idx := (i * 3) + 2
 
@@ -240,7 +238,6 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 		byteOffset += uint64(len(chunk.imageObject))
 	}
 
-	// Cross-reference table
 	xrefStart := byteOffset
 	writer.WriteString("xref\n")
 	fmt.Fprintf(writer, "0 %d\n", len(xrefOffsets)+1)
@@ -248,8 +245,6 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 	for _, offset := range xrefOffsets {
 		fmt.Fprintf(writer, "%010d 00000 n \n", offset)
 	}
-
-	// Trailer
 	writer.WriteString("trailer\n")
 	fmt.Fprintf(writer, "<< /Size %d /Root 1 0 R >>\n", len(xrefOffsets)+1)
 	writer.WriteString("startxref\n")

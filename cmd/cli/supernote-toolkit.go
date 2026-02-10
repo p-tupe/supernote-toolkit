@@ -15,9 +15,9 @@ func main() {
 	output := flag.String("output", "./output", "Folder for converted files")
 	pdf := flag.Bool("pdf", true, "Convert to PDF")
 	png := flag.Bool("png", false, "Convert to PNG")
-	txt := flag.Bool("txt", false, "Extract to TXT")
-	recurse := flag.Bool("recurse", false, "Recurse directories")
-	_ = flag.Bool("force", false, "Convert every .note file (don't skip those already converted)")
+	// txt := flag.Bool("txt", false, "Extract TXT")
+	recurse := flag.Bool("recurse", true, "Recurse directories")
+	force := flag.Bool("force", false, "Force convert all .note files")
 
 	flag.Parse()
 
@@ -30,6 +30,21 @@ func main() {
 	allNotes, err := i.GetNotesFromDir(*input, *recurse, "")
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	if !*force {
+		options := []string{}
+		if *png {
+			options = append(options, i.ConvertPNG)
+		}
+		if *pdf {
+			options = append(options, i.ConvertPDF)
+		}
+
+		allNotes, err = i.FilterFreshNotes(allNotes, *output, options)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	var wg sync.WaitGroup
@@ -52,9 +67,6 @@ func main() {
 				notebook.ToPDF(op)
 			}
 
-			if *txt {
-				// TODO
-			}
 			wg.Done()
 		}()
 	}

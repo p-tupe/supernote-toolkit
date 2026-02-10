@@ -15,10 +15,16 @@ type AppData struct {
 	app        fyne.App
 	mainWindow fyne.Window
 
-	inputDir  string
-	outputDir fyne.ListableURI
+	// Input directory of .note files
+	input string
+	// Output directory
+	output fyne.ListableURI
+	// Options for conversion format
 	convertTo []string
-	recurse   bool
+	// Include sub-foders?
+	recurse bool
+	// Convert stale notes?
+	force bool
 }
 
 func Execute() {
@@ -27,7 +33,11 @@ func Execute() {
 
 	var content, inputPage, outputPage, previewPage *fyne.Container
 
-	appData := &AppData{app: a, mainWindow: w, convertTo: convertToOptions}
+	appData := &AppData{
+		app: a, mainWindow: w,
+		force: false, recurse: true,
+		convertTo: convertToOptions,
+	}
 
 	inputPage = GetInputPage(appData, func() {
 		content.Remove(inputPage)

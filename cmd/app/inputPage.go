@@ -11,7 +11,7 @@ func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 	recurseCheckbox := widget.NewCheck("Recurse folders", func(b bool) {
 		appData.recurse = b
 	})
-	recurseCheckbox.SetChecked(false)
+	recurseCheckbox.SetChecked(true)
 
 	noFilesTxt := widget.NewLabel("You won't actually see the .note files; that's expected.")
 	noFilesTxt.Importance = widget.LowImportance
@@ -26,7 +26,7 @@ func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 			return
 		}
 
-		appData.inputDir = lu.Path()
+		appData.input = lu.Path()
 		cb()
 	}, appData.mainWindow)
 	inputDialog.Resize(MIN_SIZE)

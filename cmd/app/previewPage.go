@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"path/filepath"
 	"slices"
 	"sync"
@@ -14,10 +15,18 @@ import (
 )
 
 func GetPreviewPage(appData *AppData) *fyne.Container {
-	allNotes, err := i.GetNotesFromDir(appData.inputDir, appData.recurse, "")
+	allNotes, err := i.GetNotesFromDir(appData.input, appData.recurse, "")
 	if err != nil {
 		dialog.NewError(err, appData.mainWindow).Show()
 		return nil
+	}
+
+	if !appData.force {
+		allNotes, err = i.FilterFreshNotes(allNotes, appData.output.Path(), appData.convertTo)
+		if err != nil {
+			dialog.NewError(err, appData.mainWindow).Show()
+			return nil
+		}
 	}
 
 	notesList := widget.NewList(
@@ -32,7 +41,7 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 		},
 	)
 
-	pdfFolder := widget.NewLabel("Output at: " + appData.outputDir.Path())
+	pdfFolder := widget.NewLabel("Output at: " + appData.output.Path())
 	pdfFolder.Importance = widget.MediumImportance
 	pdfFolder.TextStyle.Bold = true
 
@@ -49,13 +58,13 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 				if err != nil {
 					dialog.NewError(err, appData.mainWindow).Show()
 				} else {
-					op := filepath.Join(appData.outputDir.Path(), input.Parents)
+					op := filepath.Join(appData.output.Path(), input.Parents)
 
-					if slices.Contains(appData.convertTo, "Convert to PNG") {
+					if slices.Contains(appData.convertTo, i.ConvertPNG) {
 						notebook.ToPNG(op)
 					}
 
-					if slices.Contains(appData.convertTo, "Convert to PDF") {
+					if slices.Contains(appData.convertTo, i.ConvertPDF) {
 						notebook.ToPDF(op)
 					}
 				}
@@ -73,6 +82,13 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 	listLabel.TextStyle.Bold = true
 
 	bottomBar := container.NewHBox(pdfFolder, widget.NewToolbarSpacer().ToolbarObject(), convertBtn)
+
+	if len(allNotes) == 0 {
+		listLabel.SetText("No .note files to convert!")
+		dialog.NewError(errors.New("No .note files to convert!"), appData.mainWindow).Show()
+		convertBtn.SetText("Quit")
+		convertBtn.OnTapped = func() { appData.app.Quit() }
+	}
 
 	return container.NewBorder(
 		listLabel,

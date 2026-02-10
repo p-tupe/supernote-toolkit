@@ -9,24 +9,23 @@ https://github.com/user-attachments/assets/944129de-6cde-452c-9e60-741618ff3739
 
 ## Features
 
-For now, it only converts a folder of .note files into corresponding png/pdf files. See [roadmap](#Roadmap) for more.
+For now, it only converts a folder of .note files into corresponding png/pdf files.
+
+See [roadmap](#Roadmap) for more. See [changelog](/CHANGELOG.md) for all changes so far.
+
+## Changelog v0.3
+
+- Skip conversion when .note file is older than the existing .png/.pdf file; add a new "force" option to convert all files regardless.
+
+- Recurse into sub-folders by default.
+
+- Converted PNGs now go into folder without the .note extention folders since it conflicted when output was same as input.
 
 ## Install
 
-> You can also just `go get github.com/p-tupe/supernote-toolkit` if you have go installed
+Download the latest binaries from [release page](https://github.com/p-tupe/supernote-toolkit/releases/latest). Verify your download against checksum.txt included in each release. See OS-specific instructions below.
 
-Download the latest release from below:
-
-| Platform              | Download                                                                                                            |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| macOS (Apple Silicon) | [darwin-arm64.dmg](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/darwin-arm64.dmg)           |
-| Linux (amd64)         | [linux-amd64.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-amd64.tar.xz)       |
-| Linux (arm64)         | [linux-arm64.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm64.tar.xz)       |
-| Linux (arm)           | [linux-arm.tar.xz](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/linux-arm.tar.xz)           |
-| Windows (amd64)       | [windows-amd64.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-amd64.exe.zip) |
-| Windows (arm64)       | [windows-arm64.exe.zip](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/windows-arm64.exe.zip) |
-
-Verify your download against [checksum.txt](https://github.com/p-tupe/supernote-toolkit/releases/latest/download/checksum.txt) (SHA-256) included in each release.
+> You can also just `go install github.com/p-tupe/supernote-toolkit` if you have `go` installed.
 
 ### macOS
 
@@ -42,7 +41,7 @@ Or: System Settings > Privacy & Security > Open Anyway.
 
 ```bash
 tar xf "Supernote Toolkit.tar.xz"
-make user-install # or ./supernote-toolkit
+make user-install
 ```
 
 ### Windows
@@ -70,14 +69,9 @@ supernote-toolkit
 
 ## Roadmap
 
-### Done
-
-- [x] Option to recurse through sub-folders
-
 ### In-progress
 
 - [ ] Extract Text (from Realtime notes)
-- [ ] Skip stale notes, convert only new ones
 - [ ] Horizontal orientation
 - [ ] Improve UI somehow
   - [ ] Make errors more visible
