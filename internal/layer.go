@@ -10,19 +10,19 @@ import (
 )
 
 type Layer struct {
-	LAYERADDR        int64
-	LAYERTYPE        string
-	LAYERPROTOCOL    string
-	LAYERNAME        string
-	LAYERPATH        string
-	LAYERBITMAP      string
-	LAYERVECTORGRAPH string
-	LAYERRECOGN      string
+	LAYERADDR     int64
+	LAYERPROTOCOL string
+	LAYERNAME     string
+	LAYERBITMAP   string
+	// LAYERPATH        string
+	// LAYERTYPE        string
+	// LAYERVECTORGRAPH string
+	// LAYERRECOGN      string
 
 	Data *image.RGBA
 }
 
-func NewLayer(file *os.File, notebook *Notebook, layerAddr int64) (*Layer, error) {
+func NewLayer(file *os.File, notebook *Notebook, layerAddr int64, isHorizontal bool) (*Layer, error) {
 	layerStr, err := readBlock(file, layerAddr)
 	if err != nil {
 		return nil, err
@@ -31,17 +31,23 @@ func NewLayer(file *os.File, notebook *Notebook, layerAddr int64) (*Layer, error
 	metadata := parseMetadata(layerStr)
 
 	layer := &Layer{
-		LAYERADDR:        layerAddr,
-		LAYERTYPE:        metadata["LAYERTYPE"],
-		LAYERPROTOCOL:    metadata["LAYERPROTOCOL"],
-		LAYERNAME:        metadata["LAYERNAME"],
-		LAYERPATH:        metadata["LAYERPATH"],
-		LAYERBITMAP:      metadata["LAYERBITMAP"],
-		LAYERVECTORGRAPH: metadata["LAYERVECTORGRAPH"],
-		LAYERRECOGN:      metadata["LAYERRECOGN"],
+		LAYERADDR:     layerAddr,
+		LAYERPROTOCOL: metadata["LAYERPROTOCOL"],
+		LAYERNAME:     metadata["LAYERNAME"],
+		LAYERBITMAP:   metadata["LAYERBITMAP"],
+		// LAYERTYPE:        metadata["LAYERTYPE"],
+		// LAYERPATH:        metadata["LAYERPATH"],
+		// LAYERVECTORGRAPH: metadata["LAYERVECTORGRAPH"],
+		// LAYERRECOGN:      metadata["LAYERRECOGN"],
 	}
 
-	bounds := image.Rect(0, 0, notebook.Device.PageWidth, notebook.Device.PageHeight)
+	var bounds image.Rectangle
+	if isHorizontal {
+		bounds = image.Rect(0, 0, notebook.Device.PageHeight, notebook.Device.PageWidth)
+	} else {
+		bounds = image.Rect(0, 0, notebook.Device.PageWidth, notebook.Device.PageHeight)
+	}
+
 	layer.Data = image.NewRGBA(bounds)
 
 	switch layer.LAYERPROTOCOL {

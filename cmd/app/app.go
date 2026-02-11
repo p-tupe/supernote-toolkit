@@ -25,6 +25,8 @@ type AppData struct {
 	recurse bool
 	// Convert stale notes?
 	force bool
+	// Which supernote?
+	device string
 }
 
 func Execute() {
@@ -37,6 +39,7 @@ func Execute() {
 		app: a, mainWindow: w,
 		force: false, recurse: true,
 		convertTo: convertToOptions,
+		device:    deviceOptions[0],
 	}
 
 	inputPage = GetInputPage(appData, func() {

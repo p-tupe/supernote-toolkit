@@ -18,6 +18,7 @@ func main() {
 	// txt := flag.Bool("txt", false, "Extract TXT")
 	recurse := flag.Bool("recurse", true, "Recurse directories")
 	force := flag.Bool("force", false, "Force convert all .note files")
+	device := flag.String("device", "", "Chose a specific device (A5X2 | A6X2)")
 
 	flag.Parse()
 
@@ -47,14 +48,27 @@ func main() {
 		}
 	}
 
+	var d *i.Device
+	if *device != "" {
+		switch *device {
+		case "A5X2":
+			d = i.A5X2
+		case "A6X2":
+			d = i.A6X2
+		default:
+			log.Fatalln("Invalid device (must be one of: A5X2, A6X2):", *device)
+		}
+	}
+
 	var wg sync.WaitGroup
 	for _, note := range allNotes {
 		wg.Add(1)
 		go func() {
-			notebook, err := i.NewNotebook(note)
-
+			defer wg.Done()
+			notebook, err := i.NewNotebook(note, d)
 			if err != nil {
-				log.Fatalln(err)
+				log.Println(err)
+				return
 			}
 
 			op := filepath.Join(*output, note.Parents)
@@ -66,8 +80,6 @@ func main() {
 			if *pdf {
 				notebook.ToPDF(op)
 			}
-
-			wg.Done()
 		}()
 	}
 	wg.Wait()

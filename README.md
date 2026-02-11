@@ -13,13 +13,13 @@ For now, it only converts a folder of .note files into corresponding png/pdf fil
 
 See [roadmap](#Roadmap) for more. See [changelog](/CHANGELOG.md) for all changes so far.
 
-## Changelog v0.3
+## Latest Changelog
 
-- Skip conversion when .note file is older than the existing .png/.pdf file; add a new "force" option to convert all files regardless.
+- Add support for Nomad X2 devices.
 
-- Recurse into sub-folders by default.
+- Add support for Horizontal orientations.
 
-- Converted PNGs now go into folder without the .note extention folders since it conflicted when output was same as input.
+- Add cli flag (-device) and UI radio buttons (Select Device) to manually impose a device for all notes for the conversion.
 
 ## Install
 

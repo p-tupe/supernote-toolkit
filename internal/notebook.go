@@ -26,7 +26,7 @@ type Notebook struct {
 	Name   string
 }
 
-func NewNotebook(input NoteFile) (*Notebook, error) {
+func NewNotebook(input NoteFile, device *Device) (*Notebook, error) {
 	file, err := os.Open(input.Path)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,11 @@ func NewNotebook(input NoteFile) (*Notebook, error) {
 		return nil, err
 	}
 
-	NewDevice(notebook)
+	if device != nil {
+		notebook.Device = device
+	} else {
+		NewDevice(notebook)
+	}
 
 	notebook.Pages = make([]*Page, len(notebook.Footer.PAGES))
 	var wg sync.WaitGroup
@@ -77,7 +81,12 @@ func NewNotebook(input NoteFile) (*Notebook, error) {
 }
 
 func (notebook *Notebook) compositePage(p *Page) *image.RGBA {
-	bounds := image.Rect(0, 0, notebook.Device.PageWidth, notebook.Device.PageHeight)
+	var bounds image.Rectangle
+	if p.IsHorizontal {
+		bounds = image.Rect(0, 0, notebook.Device.PageHeight, notebook.Device.PageWidth)
+	} else {
+		bounds = image.Rect(0, 0, notebook.Device.PageWidth, notebook.Device.PageHeight)
+	}
 	canvas := image.NewRGBA(bounds)
 	draw.Draw(canvas, bounds, &image.Uniform{color.White}, image.Point{}, draw.Src)
 	for _, l := range p.LAYERSEQ {
@@ -123,8 +132,6 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 		return err
 	}
 
-	width := notebook.Device.PageWidth
-	height := notebook.Device.PageHeight
 	totalPages := len(notebook.Pages)
 
 	type pdfPageChunk struct {
@@ -141,6 +148,13 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 		go func() {
 			defer wg.Done()
 			canvas := notebook.compositePage(p)
+
+			width := notebook.Device.PageWidth
+			height := notebook.Device.PageHeight
+			if p.IsHorizontal {
+				width = notebook.Device.PageHeight
+				height = notebook.Device.PageWidth
+			}
 
 			var compressed bytes.Buffer
 			zw, _ := zlib.NewWriterLevel(&compressed, zlib.BestCompression)

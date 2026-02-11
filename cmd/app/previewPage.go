@@ -49,12 +49,21 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 	convertBtn = widget.NewButton("Convert now!", func() {
 		convertBtn.Disable()
 		convertBtn.SetText("Converting...")
+
+		var device *i.Device
+		switch appData.device {
+		case i.DeviceManta:
+			device = i.A5X2
+		case i.DeviceNomad:
+			device = i.A6X2
+		}
+
 		var wg sync.WaitGroup
 		for _, input := range allNotes {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				notebook, err := i.NewNotebook(input)
+				notebook, err := i.NewNotebook(input, device)
 				if err != nil {
 					dialog.NewError(err, appData.mainWindow).Show()
 				} else {

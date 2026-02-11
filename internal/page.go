@@ -8,7 +8,9 @@ import (
 )
 
 type Page struct {
-	LAYERSEQ []*Layer
+	LAYERSEQ     []*Layer
+	ORIENTATION  int
+	IsHorizontal bool
 }
 
 func NewPage(file *os.File, notebook *Notebook, pageAddr int64) (*Page, error) {
@@ -29,8 +31,18 @@ func parsePageStr(file *os.File, notebook *Notebook, pageStr string) (*Page, err
 	layerAddr := map[string]int64{}
 	for k, v := range matches {
 		switch k {
+		case "ORIENTATION":
+			var err error
+			if page.ORIENTATION, err = strconv.Atoi(v); err != nil {
+				return nil, err
+			}
+
 		case "LAYERSEQ":
 			layerSeq = strings.Split(v, ",")
+			if len(layerSeq) < 1 {
+				return nil, errors.New("Could not find any layers")
+			}
+
 		case "BGLAYER", "MAINLAYER", "LAYER1", "LAYER2", "LAYER3":
 			val, err := strconv.ParseInt(v, 0, 64)
 			if err != nil {
@@ -42,12 +54,10 @@ func parsePageStr(file *os.File, notebook *Notebook, pageStr string) (*Page, err
 		}
 	}
 
-	if len(layerSeq) < 1 {
-		return nil, errors.New("Could not find any layers")
-	}
+	page.IsHorizontal = notebook.Device.HorizontalOrientation == page.ORIENTATION
 
 	for _, l := range layerSeq {
-		newLayer, err := NewLayer(file, notebook, layerAddr[l])
+		newLayer, err := NewLayer(file, notebook, layerAddr[l], page.IsHorizontal)
 		if err != nil {
 			return nil, err
 		}
