@@ -268,3 +268,21 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 	writer.Flush()
 	return nil
 }
+
+func (notebook *Notebook) ToTXT(outputPath string) error {
+	name := strings.TrimSuffix(notebook.Name, filepath.Ext(notebook.Name))
+	f, err := os.Create(filepath.Join(outputPath, name+".txt"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	for _, p := range notebook.Pages {
+		_, err := f.WriteString(p.RealTimeText)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

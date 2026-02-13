@@ -59,6 +59,7 @@ func FilterFreshNotes(allNotes []NoteFile, output string, convertTo []string) ([
 
 	pdfConvert := slices.Contains(convertTo, ConvertPDF)
 	pngConvert := slices.Contains(convertTo, ConvertPNG)
+	txtConvert := slices.Contains(convertTo, ConvertTXT)
 
 	for _, note := range allNotes {
 		noteFile, err := os.Stat(note.Path)
@@ -101,6 +102,26 @@ func FilterFreshNotes(allNotes []NoteFile, output string, convertTo []string) ([
 			if pngDir.ModTime().Before(noteFile.ModTime()) {
 				freshNotes = append(freshNotes, note)
 			}
+		}
+
+		if txtConvert {
+			name := strings.TrimSuffix(noteFile.Name(), filepath.Ext(noteFile.Name()))
+			txtFilePath := filepath.Join(output, note.Parents, name+".txt")
+
+			txtFile, err := os.Stat(txtFilePath)
+			if err != nil {
+				if errors.Is(err, os.ErrNotExist) {
+					freshNotes = append(freshNotes, note)
+					continue
+				}
+				return nil, err
+			}
+
+			if txtFile.ModTime().Before(noteFile.ModTime()) {
+				freshNotes = append(freshNotes, note)
+				continue
+			}
+
 		}
 	}
 

@@ -9,9 +9,9 @@ https://github.com/user-attachments/assets/944129de-6cde-452c-9e60-741618ff3739
 
 ## Features
 
-For now, it only converts a folder of .note files into corresponding png/pdf files.
+For now, it only converts a folder of .note files (from supernote X2 devices with latest version of Chauvet) into corresponding png/pdf files.
 
-See [roadmap](#Roadmap) for more. See [changelog](/CHANGELOG.md) for all changes so far.
+See [roadmap](#Roadmap) for planned changes. See [changelog](/CHANGELOG.md) for all changes so far.
 
 ## Latest Changelog
 
@@ -67,21 +67,10 @@ go install cmd/cli/supernote-toolkit.go
 supernote-toolkit
 ```
 
-## Roadmap
-
-### In-progress
+## Upcoming Changes in v0.5
 
 - [ ] Extract Text (from Realtime notes)
-- [ ] Horizontal orientation
-- [ ] Improve UI somehow
-  - [ ] Make errors more visible
-  - [ ] Show a log?
 
-### Don't hold your breath
-
-- [ ] Input from file server (from device)
-- [ ] Input from private dav server
-- [ ] Input from supernote cloud
-- [ ] Automatically convert notes on change in a pre-configured folder
-- [ ] Convert to SVG
-- [ ] Convert Text using OCR
+- [ ] UI Changes:
+  - [ ] Show a progress bar during conversion
+  - [ ] Show a log window

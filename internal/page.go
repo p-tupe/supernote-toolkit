@@ -10,7 +10,9 @@ import (
 type Page struct {
 	LAYERSEQ     []*Layer
 	ORIENTATION  int
+	RECOGNTEXT   int64
 	IsHorizontal bool
+	RealTimeText string
 }
 
 func NewPage(file *os.File, notebook *Notebook, pageAddr int64) (*Page, error) {
@@ -34,6 +36,12 @@ func parsePageStr(file *os.File, notebook *Notebook, pageStr string) (*Page, err
 		case "ORIENTATION":
 			var err error
 			if page.ORIENTATION, err = strconv.Atoi(v); err != nil {
+				return nil, err
+			}
+
+		case "RECOGNTEXT":
+			var err error
+			if page.RECOGNTEXT, err = strconv.ParseInt(v, 10, 64); err != nil {
 				return nil, err
 			}
 
@@ -61,6 +69,18 @@ func parsePageStr(file *os.File, notebook *Notebook, pageStr string) (*Page, err
 		if err != nil {
 			return nil, err
 		}
+
+		if page.RECOGNTEXT != 0 {
+			encodedTxt, err := readBlockAsBytes(file, (page.RECOGNTEXT))
+			if err != nil {
+				return nil, err
+			}
+
+			if err = decodeTXT(encodedTxt, page); err != nil {
+				return nil, err
+			}
+		}
+
 		page.LAYERSEQ = append(page.LAYERSEQ, newLayer)
 	}
 

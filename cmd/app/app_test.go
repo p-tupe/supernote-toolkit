@@ -83,7 +83,7 @@ func newTestAppData(t *testing.T) *AppData {
 		mainWindow: w,
 		force:      false,
 		recurse:    true,
-		convertTo:  convertToOptions,
+		convertTo:  []string{convertToOptions[0]},
 		device:     deviceOptions[0],
 	}
 }
@@ -102,8 +102,8 @@ func TestAppDataDefaults(t *testing.T) {
 	if ad.device != i.DeviceAuto {
 		t.Errorf("device = %q, want %q", ad.device, i.DeviceAuto)
 	}
-	if len(ad.convertTo) != 2 || ad.convertTo[0] != i.ConvertPNG || ad.convertTo[1] != i.ConvertPDF {
-		t.Errorf("convertTo = %v, want [%s %s]", ad.convertTo, i.ConvertPNG, i.ConvertPDF)
+	if len(ad.convertTo) != 1 || ad.convertTo[0] != i.ConvertPDF {
+		t.Errorf("convertTo = %v, want [%s]", ad.convertTo, i.ConvertPDF)
 	}
 	if ad.input != "" {
 		t.Errorf("input = %q, want empty", ad.input)
@@ -236,8 +236,8 @@ func TestOutputPage(t *testing.T) {
 		if !cg.Required {
 			t.Error("checkgroup should be required")
 		}
-		if !slices.Equal(cg.Selected, convertToOptions) {
-			t.Errorf("selected = %v, want %v", cg.Selected, convertToOptions)
+		if !slices.Equal(cg.Selected, []string{convertToOptions[0]}) {
+			t.Errorf("selected = %v, want %v", cg.Selected, convertToOptions[0])
 		}
 	})
 

@@ -2,12 +2,15 @@ package internal
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"image"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 // Ensure that file stream starts with 'note' byte,
@@ -18,7 +21,7 @@ func isNote(file *os.File) (bool, error) {
 	}
 
 	start := make([]byte, 4)
-	_, err := file.Read(start)
+	_, err := file.ReadAt(start, 0)
 	if err != nil {
 		return false, err
 	}
@@ -135,4 +138,42 @@ func decodeRLE(data []byte, notebook *Notebook, img *image.RGBA) {
 			fillRun(holderColor, tailLen)
 		}
 	}
+}
+
+// This is (one of the keys from) what we get
+// when we docode the Real-Time Recognition content.
+type RawContent struct {
+	Elements []struct {
+		Label string `json:"label"`
+	} `json:"elements"`
+}
+
+// decodeRLE converts a stream of data from
+// base64 json encoded bytes to actual text embedded into it.
+//
+// The json is of form [RawContent] above. Lines have double new-line
+// separation for better reflow.
+func decodeTXT(data []byte, page *Page) error {
+	decodedBytes := make([]byte, len(data))
+	decodedLen, err := base64.StdEncoding.Decode(decodedBytes, data)
+	if err != nil {
+		return err
+	}
+
+	decodedJson := &RawContent{}
+	err = json.Unmarshal(decodedBytes[:decodedLen], decodedJson)
+	if err != nil {
+		return err
+	}
+
+	var txt strings.Builder
+	for _, e := range decodedJson.Elements {
+		_, err := txt.WriteString(e.Label + "\n\n")
+		if err != nil {
+			return err
+		}
+	}
+
+	page.RealTimeText = txt.String()
+	return nil
 }

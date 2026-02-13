@@ -14,10 +14,6 @@ type Layer struct {
 	LAYERPROTOCOL string
 	LAYERNAME     string
 	LAYERBITMAP   string
-	// LAYERPATH        string
-	// LAYERTYPE        string
-	// LAYERVECTORGRAPH string
-	// LAYERRECOGN      string
 
 	Data *image.RGBA
 }
@@ -35,10 +31,6 @@ func NewLayer(file *os.File, notebook *Notebook, layerAddr int64, isHorizontal b
 		LAYERPROTOCOL: metadata["LAYERPROTOCOL"],
 		LAYERNAME:     metadata["LAYERNAME"],
 		LAYERBITMAP:   metadata["LAYERBITMAP"],
-		// LAYERTYPE:        metadata["LAYERTYPE"],
-		// LAYERPATH:        metadata["LAYERPATH"],
-		// LAYERVECTORGRAPH: metadata["LAYERVECTORGRAPH"],
-		// LAYERRECOGN:      metadata["LAYERRECOGN"],
 	}
 
 	var bounds image.Rectangle
@@ -51,9 +43,6 @@ func NewLayer(file *os.File, notebook *Notebook, layerAddr int64, isHorizontal b
 	layer.Data = image.NewRGBA(bounds)
 
 	switch layer.LAYERPROTOCOL {
-	case "TEXT":
-	// TODO: Real-time text comes here
-
 	case "PNG":
 		rawImg, err := readBlock(file, layerAddr)
 		if err != nil {

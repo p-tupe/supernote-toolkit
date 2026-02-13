@@ -15,7 +15,7 @@ func main() {
 	output := flag.String("output", "./output", "Folder for converted files")
 	pdf := flag.Bool("pdf", true, "Convert to PDF")
 	png := flag.Bool("png", false, "Convert to PNG")
-	// txt := flag.Bool("txt", false, "Extract TXT")
+	txt := flag.Bool("txt", false, "Extract TXT")
 	recurse := flag.Bool("recurse", true, "Recurse directories")
 	force := flag.Bool("force", false, "Force convert all .note files")
 	device := flag.String("device", "", "Chose a specific device (A5X2 | A6X2)")
@@ -40,6 +40,9 @@ func main() {
 		}
 		if *pdf {
 			options = append(options, i.ConvertPDF)
+		}
+		if *txt {
+			options = append(options, i.ConvertTXT)
 		}
 
 		allNotes, err = i.FilterFreshNotes(allNotes, *output, options)
@@ -79,6 +82,10 @@ func main() {
 
 			if *pdf {
 				notebook.ToPDF(op)
+			}
+
+			if *txt {
+				notebook.ToTXT(op)
 			}
 		}()
 	}

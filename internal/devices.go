@@ -33,22 +33,8 @@ var A5X2 = &Device{
 	PageWidth:             1920,
 	PageHeight:            2560,
 	HorizontalOrientation: 1090,
-	ToRGBA: func(b byte) color.RGBA {
-		switch b {
-		case 0x61: // Black
-			return color.RGBA{0, 0, 0, 255}
-		case 0x62: // Transparent
-			return color.RGBA{0, 0, 0, 0}
-		case 0x63: // Dark Gray
-			return color.RGBA{0x9d, 0x9d, 0x9d, 255}
-		case 0x64: // Light Gray
-			return color.RGBA{0xc9, 0xc9, 0xc9, 255}
-		case 0x65: // White
-			return color.RGBA{255, 255, 255, 255}
-		default: // Intensity
-			return color.RGBA{b, b, b, 255}
-		}
-	},
+	// VerticalOrientation:   1000,
+	ToRGBA: X2CodeToRGBA,
 }
 
 // Tech Specs https://supernote.com/products/supernote-nomad
@@ -58,20 +44,23 @@ var A6X2 = &Device{
 	PageWidth:             1404,
 	PageHeight:            1872,
 	HorizontalOrientation: 1270,
-	ToRGBA: func(b byte) color.RGBA {
-		switch b {
-		case 0x61: // Black
-			return color.RGBA{0, 0, 0, 255}
-		case 0x62: // Transparent
-			return color.RGBA{0, 0, 0, 0}
-		case 0x63: // Dark Gray
-			return color.RGBA{0x9d, 0x9d, 0x9d, 255}
-		case 0x64: // Light Gray
-			return color.RGBA{0xc9, 0xc9, 0xc9, 255}
-		case 0x65: // White
-			return color.RGBA{255, 255, 255, 255}
-		default: // Intensity
-			return color.RGBA{b, b, b, 255}
-		}
-	},
+	// VerticalOrientation:   ???,
+	ToRGBA: X2CodeToRGBA,
+}
+
+func X2CodeToRGBA(b byte) color.RGBA {
+	switch b {
+	case 0x61:
+		return ColorBlack
+	case 0x62:
+		return ColorTransparent
+	case 0x63:
+		return ColorDarkGray
+	case 0x64:
+		return ColorLightGray
+	case 0x65:
+		return ColorWhite
+	default:
+		return color.RGBA{b, b, b, 255}
+	}
 }

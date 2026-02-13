@@ -9,7 +9,7 @@ import (
 	i "github.com/p-tupe/supernote-toolkit/internal"
 )
 
-var convertToOptions = []string{i.ConvertPNG, i.ConvertPDF}
+var convertToOptions = []string{i.ConvertPDF, i.ConvertPNG, i.ConvertTXT}
 
 func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
 	convertCheckbox := widget.NewCheckGroup(convertToOptions, func(s []string) {
@@ -17,7 +17,7 @@ func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
 	})
 	convertCheckbox.Horizontal = true
 	convertCheckbox.Required = true
-	convertCheckbox.Selected = convertToOptions
+	convertCheckbox.Selected = []string{convertToOptions[0]}
 
 	forceCheckbox := widget.NewCheck("Force convert stale notes", func(b bool) {
 		appData.force = b
