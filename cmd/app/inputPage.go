@@ -9,7 +9,7 @@ import (
 	i "github.com/p-tupe/supernote-toolkit/internal"
 )
 
-var deviceOptions = []string{i.DeviceAuto, i.DeviceManta, i.DeviceNomad}
+var deviceOptions = []string{i.DeviceAuto, i.DeviceManta, i.DeviceNomad, i.DeviceA5X, i.DeviceA6X}
 
 func GetInputPage(appData *AppData, cb func()) *fyne.Container {
 	recurseCheckbox := widget.NewCheck("Recurse folders", func(b bool) {

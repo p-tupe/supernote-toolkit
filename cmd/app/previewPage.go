@@ -56,6 +56,10 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 			device = i.A5X2
 		case i.DeviceNomad:
 			device = i.A6X2
+		case i.DeviceA5X:
+			device = i.A5X
+		case i.DeviceA6X:
+			device = i.A6X
 		}
 
 		var wg sync.WaitGroup

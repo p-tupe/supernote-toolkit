@@ -58,8 +58,12 @@ func main() {
 			d = i.A5X2
 		case "A6X2":
 			d = i.A6X2
+		case "A5X":
+			d = i.A5X
+		case "A6X":
+			d = i.A6X
 		default:
-			log.Fatalln("Invalid device (must be one of: A5X2, A6X2):", *device)
+			log.Fatalln("Invalid device (must be one of: A5X2, A6X2, A5X, A6X):", *device)
 		}
 	}
 

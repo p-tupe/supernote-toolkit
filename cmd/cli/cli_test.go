@@ -88,26 +88,26 @@ func assertNotExists(t *testing.T, path string) {
 // setupA5X2Dir creates:
 //
 //	tmp/
-//	  Standard.note
+//	  blank_v1000_1p.note
 //	  sub/
-//	    Artifacts.note
+//	    blank_v1000_1p_artifacts.note
 func setupA5X2Dir(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
 
-	copyFile(t, filepath.Join(testFixtures, "A5X2", "Standard.note"), filepath.Join(dir, "Standard.note"))
+	copyFile(t, filepath.Join(testFixtures, "A5X2", "blank_v1000_1p.note"), filepath.Join(dir, "blank_v1000_1p.note"))
 
 	sub := filepath.Join(dir, "sub")
 	os.MkdirAll(sub, 0o755)
-	copyFile(t, filepath.Join(testFixtures, "A5X2", "Artifacts.note"), filepath.Join(sub, "Artifacts.note"))
+	copyFile(t, filepath.Join(testFixtures, "A5X2", "blank_v1000_1p_artifacts.note"), filepath.Join(sub, "blank_v1000_1p_artifacts.note"))
 
 	return dir
 }
 
-func setupA6X2File(t *testing.T, name string) string {
+func setupFile(t *testing.T, deviceDir, name string) string {
 	t.Helper()
 	dir := t.TempDir()
-	copyFile(t, filepath.Join(testFixtures, "A6X2", name), filepath.Join(dir, name))
+	copyFile(t, filepath.Join(testFixtures, deviceDir, name), filepath.Join(dir, name))
 	return dir
 }
 
@@ -142,7 +142,7 @@ func TestInvalidDevice(t *testing.T) {
 	}
 }
 
-// --- A5X2 ---
+// --- A5X2 (Manta X2, N5) ---
 
 func TestA5X2(t *testing.T) {
 	t.Parallel()
@@ -157,41 +157,41 @@ func TestA5X2(t *testing.T) {
 	}{
 		{
 			name:     "pdf default",
-			wantPDFs: []string{"Standard.pdf", "sub/Artifacts.pdf"},
-			notExist: []string{"Standard", "sub/Artifacts"},
+			wantPDFs: []string{"blank_v1000_1p.pdf", "sub/blank_v1000_1p_artifacts.pdf"},
+			notExist: []string{"blank_v1000_1p", "sub/blank_v1000_1p_artifacts"},
 		},
 		{
 			name:     "png only",
 			args:     []string{"-pdf=false", "-png"},
-			wantPNGs: []string{"Standard/PAGE0.png", "sub/Artifacts/PAGE0.png"},
-			notExist: []string{"Standard.pdf"},
+			wantPNGs: []string{"blank_v1000_1p/PAGE0.png", "sub/blank_v1000_1p_artifacts/PAGE0.png"},
+			notExist: []string{"blank_v1000_1p.pdf"},
 		},
 		{
 			name:     "both formats",
 			args:     []string{"-png"},
-			wantPDFs: []string{"Standard.pdf"},
-			wantPNGs: []string{"Standard/PAGE0.png"},
+			wantPDFs: []string{"blank_v1000_1p.pdf"},
+			wantPNGs: []string{"blank_v1000_1p/PAGE0.png"},
 		},
 		{
 			name:     "neither format",
 			args:     []string{"-pdf=false"},
-			notExist: []string{"Standard.pdf", "Standard"},
+			notExist: []string{"blank_v1000_1p.pdf", "blank_v1000_1p"},
 		},
 		{
 			name:     "recurse false",
 			args:     []string{"-recurse=false"},
-			wantPDFs: []string{"Standard.pdf"},
-			notExist: []string{"sub/Artifacts.pdf"},
+			wantPDFs: []string{"blank_v1000_1p.pdf"},
+			notExist: []string{"sub/blank_v1000_1p_artifacts.pdf"},
 		},
 		{
 			name:         "custom nested output",
 			outputSuffix: "nested/out",
-			wantPDFs:     []string{"Standard.pdf"},
+			wantPDFs:     []string{"blank_v1000_1p.pdf"},
 		},
 		{
 			name:     "explicit device A5X2",
 			args:     []string{"-device", "A5X2"},
-			wantPDFs: []string{"Standard.pdf"},
+			wantPDFs: []string{"blank_v1000_1p.pdf"},
 		},
 	}
 
@@ -226,18 +226,127 @@ func TestA5X2(t *testing.T) {
 func TestA5X2Horizontal(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
-	copyFile(t, filepath.Join(testFixtures, "mixed", "horizontal_1090.note"), filepath.Join(dir, "horizontal_1090.note"))
+	dir := setupFile(t, "A5X2", "blank_h1090_1p_rtr.note")
 	output := t.TempDir()
 
 	_, _, code := runCLI(t, "-input", dir, "-output", output, "-device", "A5X2")
 	if code != 0 {
 		t.Fatalf("exit code %d", code)
 	}
-	assertPDF(t, filepath.Join(output, "horizontal_1090.pdf"))
+	assertPDF(t, filepath.Join(output, "blank_h1090_1p_rtr.pdf"))
 }
 
-// --- A6X2 ---
+// --- A5X (Manta gen1, auto-detected as A6X2) ---
+
+func TestA5X(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		file     string
+		args     []string
+		wantPDFs []string
+		wantPNGs []string
+	}{
+		{
+			name:     "auto-detect pdf",
+			file:     "ruled_v1000_10p_rtr.note",
+			wantPDFs: []string{"ruled_v1000_10p_rtr.pdf"},
+		},
+		{
+			name:     "explicit device A6X2",
+			file:     "ruled_v1000_10p_rtr.note",
+			args:     []string{"-device", "A6X2"},
+			wantPDFs: []string{"ruled_v1000_10p_rtr.pdf"},
+		},
+		{
+			name:     "png",
+			file:     "ruled_v1000_10p_rtr.note",
+			args:     []string{"-pdf=false", "-png"},
+			wantPNGs: []string{"ruled_v1000_10p_rtr/PAGE0.png"},
+		},
+		{
+			name:     "old format",
+			file:     "ruled8mm_v1000_2p.note",
+			wantPDFs: []string{"ruled8mm_v1000_2p.pdf"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			dir := setupFile(t, "A5X", tt.file)
+			output := t.TempDir()
+
+			args := append([]string{"-input", dir, "-output", output}, tt.args...)
+			_, _, code := runCLI(t, args...)
+			if code != 0 {
+				t.Fatalf("exit code %d", code)
+			}
+
+			for _, p := range tt.wantPDFs {
+				assertPDF(t, filepath.Join(output, p))
+			}
+			for _, p := range tt.wantPNGs {
+				assertPNG(t, filepath.Join(output, p))
+			}
+		})
+	}
+}
+
+// --- A6X (Nomad gen1, auto-detected as A6X2) ---
+
+func TestA6X(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		file     string
+		args     []string
+		wantPDFs []string
+		wantPNGs []string
+	}{
+		{
+			name:     "shapes and RTR",
+			file:     "shapes_v1000_1p_rtr.note",
+			wantPDFs: []string{"shapes_v1000_1p_rtr.pdf"},
+		},
+		{
+			name:     "multi-page",
+			file:     "blank_v1000_2p.note",
+			args:     []string{"-pdf=false", "-png"},
+			wantPNGs: []string{"blank_v1000_2p/PAGE0.png", "blank_v1000_2p/PAGE1.png"},
+		},
+		{
+			name:     "RTR turkish",
+			file:     "blank_v1000_1p_rtr_tr.note",
+			wantPDFs: []string{"blank_v1000_1p_rtr_tr.pdf"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			dir := setupFile(t, "A6X", tt.file)
+			output := t.TempDir()
+
+			args := append([]string{"-input", dir, "-output", output}, tt.args...)
+			_, _, code := runCLI(t, args...)
+			if code != 0 {
+				t.Fatalf("exit code %d", code)
+			}
+
+			for _, p := range tt.wantPDFs {
+				assertPDF(t, filepath.Join(output, p))
+			}
+			for _, p := range tt.wantPNGs {
+				assertPNG(t, filepath.Join(output, p))
+			}
+		})
+	}
+}
+
+// --- A6X2 (Nomad X2, N6) ---
 
 func TestA6X2(t *testing.T) {
 	t.Parallel()
@@ -250,55 +359,53 @@ func TestA6X2(t *testing.T) {
 		wantPNGs []string
 	}{
 		{
-			name:     "auto-detect nomad pdf",
-			file:     "1to10.note",
-			wantPDFs: []string{"1to10.pdf"},
+			name:     "vertical v1180",
+			file:     "blank_v1180_1p.note",
+			wantPDFs: []string{"blank_v1180_1p.pdf"},
 		},
 		{
-			name:     "explicit device A6X2 pdf",
-			file:     "1to10.note",
+			name:     "horizontal h1270 pdf",
+			file:     "blank_h1270_1p.note",
+			wantPDFs: []string{"blank_h1270_1p.pdf"},
+		},
+		{
+			name:     "horizontal h1270 png",
+			file:     "blank_h1270_1p.note",
+			args:     []string{"-pdf=false", "-png"},
+			wantPNGs: []string{"blank_h1270_1p/PAGE0.png"},
+		},
+		{
+			name:     "RTR german task list",
+			file:     "task_v1000_1p_rtr_de.note",
+			wantPDFs: []string{"task_v1000_1p_rtr_de.pdf"},
+		},
+		{
+			name:     "explicit device A6X2",
+			file:     "blank_h1270_1p.note",
 			args:     []string{"-device", "A6X2"},
-			wantPDFs: []string{"1to10.pdf"},
+			wantPDFs: []string{"blank_h1270_1p.pdf"},
 		},
 		{
-			name:     "nomad png",
-			file:     "1to10.note",
-			args:     []string{"-pdf=false", "-png"},
-			wantPNGs: []string{"1to10/PAGE0.png"},
+			name:     "3-layer compositing",
+			file:     "multilayer_v1000_1p.note",
+			wantPDFs: []string{"multilayer_v1000_1p.pdf"},
 		},
 		{
-			name:     "vertical orientation",
-			file:     "vertical_1180.note",
-			wantPDFs: []string{"vertical_1180.pdf"},
+			name:     "marker colors",
+			file:     "markers_v1000_1p.note",
+			wantPDFs: []string{"markers_v1000_1p.pdf"},
 		},
 		{
-			name:     "horizontal orientation",
-			file:     "horizontal_1270.note",
-			wantPDFs: []string{"horizontal_1270.pdf"},
-		},
-		{
-			name:     "horizontal orientation png",
-			file:     "horizontal_1270.note",
-			args:     []string{"-pdf=false", "-png"},
-			wantPNGs: []string{"horizontal_1270/PAGE0.png"},
-		},
-		{
-			name:     "shapes and RTR",
-			file:     "nomad-3.15.27-blank-shapes-and-RTR.note",
-			wantPDFs: []string{"nomad-3.15.27-blank-shapes-and-RTR.pdf"},
-		},
-		{
-			name:     "multi-page blank",
-			file:     "nomad-3.15.27-blank-2p.note",
-			args:     []string{"-pdf=false", "-png"},
-			wantPNGs: []string{"nomad-3.15.27-blank-2p/PAGE0.png", "nomad-3.15.27-blank-2p/PAGE1.png"},
+			name:     "pressure variation",
+			file:     "pressure_v1000_1p.note",
+			wantPDFs: []string{"pressure_v1000_1p.pdf"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			dir := setupA6X2File(t, tt.file)
+			dir := setupFile(t, "A6X2", tt.file)
 			output := t.TempDir()
 
 			args := append([]string{"-input", dir, "-output", output}, tt.args...)
@@ -329,7 +436,7 @@ func TestForceReconvert(t *testing.T) {
 		t.Fatalf("first run: exit code %d", code)
 	}
 
-	pdf := filepath.Join(output, "Standard.pdf")
+	pdf := filepath.Join(output, "blank_v1000_1p.pdf")
 	info1, err := os.Stat(pdf)
 	if err != nil {
 		t.Fatal(err)

@@ -19,8 +19,12 @@ func NewDevice(notebook *Notebook) {
 	switch notebook.Header.APPLY_EQUIPMENT {
 	case "N5":
 		notebook.Device = A5X2
-	// case "N6":
-	// 	notebook.Device = A6X2
+	case "N6":
+		notebook.Device = A6X2
+	case "A5X":
+		notebook.Device = A5X
+	case "A6X":
+		notebook.Device = A6X
 	default:
 		notebook.Device = A6X2
 	}
@@ -28,27 +32,41 @@ func NewDevice(notebook *Notebook) {
 
 // Tech Specs from https://supernote.com/products/supernote-manta
 var A5X2 = &Device{
-	Name:                  "Supernote Manta",
+	Name:                  "Supernote Manta X2",
 	Model:                 "A5X2",
 	PageWidth:             1920,
 	PageHeight:            2560,
 	HorizontalOrientation: 1090,
-	// VerticalOrientation:   1000,
-	ToRGBA: X2CodeToRGBA,
+	ToRGBA:                CodeToRGBA,
 }
 
-// Tech Specs https://supernote.com/products/supernote-nomad
+// Tech Specs from https://supernote.com/products/supernote-nomad
 var A6X2 = &Device{
-	Name:                  "Supernote Nomad",
+	Name:                  "Supernote Nomad X2",
 	Model:                 "A6X2",
 	PageWidth:             1404,
 	PageHeight:            1872,
 	HorizontalOrientation: 1270,
-	// VerticalOrientation:   ???,
-	ToRGBA: X2CodeToRGBA,
+	ToRGBA:                CodeToRGBA,
 }
 
-func X2CodeToRGBA(b byte) color.RGBA {
+var A5X = &Device{
+	Name:       "Supernote Manta X",
+	Model:      "A5X",
+	PageWidth:  1404,
+	PageHeight: 1872,
+	ToRGBA:     CodeToRGBA,
+}
+
+var A6X = &Device{
+	Name:       "Supernote Nomad X",
+	Model:      "A6X",
+	PageWidth:  1404,
+	PageHeight: 1872,
+	ToRGBA:     CodeToRGBA,
+}
+
+func CodeToRGBA(b byte) color.RGBA {
 	switch b {
 	case 0x61:
 		return ColorBlack
