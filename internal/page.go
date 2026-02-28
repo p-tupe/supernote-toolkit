@@ -64,23 +64,21 @@ func parsePageStr(file *os.File, notebook *Notebook, pageStr string) (*Page, err
 
 	page.IsHorizontal = notebook.Device.HorizontalOrientation == page.ORIENTATION
 
+	if page.RECOGNTEXT != 0 {
+		encodedTxt, err := readBlockAsBytes(file, page.RECOGNTEXT)
+		if err != nil {
+			return nil, err
+		}
+		if err = decodeTXT(encodedTxt, page); err != nil {
+			return nil, err
+		}
+	}
+
 	for _, l := range layerSeq {
 		newLayer, err := NewLayer(file, notebook, layerAddr[l], page.IsHorizontal)
 		if err != nil {
 			return nil, err
 		}
-
-		if page.RECOGNTEXT != 0 {
-			encodedTxt, err := readBlockAsBytes(file, (page.RECOGNTEXT))
-			if err != nil {
-				return nil, err
-			}
-
-			if err = decodeTXT(encodedTxt, page); err != nil {
-				return nil, err
-			}
-		}
-
 		page.LAYERSEQ = append(page.LAYERSEQ, newLayer)
 	}
 

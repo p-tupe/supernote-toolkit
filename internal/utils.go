@@ -148,9 +148,7 @@ type RawContent struct {
 	} `json:"elements"`
 }
 
-// decodeRLE converts a stream of data from
-// base64 json encoded bytes to actual text embedded into it.
-//
+// decodeTXT decodes base64-encoded JSON RTR data into plain text.
 // The json is of form [RawContent] above. Lines have double new-line
 // separation for better reflow.
 func decodeTXT(data []byte, page *Page) error {
@@ -168,6 +166,9 @@ func decodeTXT(data []byte, page *Page) error {
 
 	var txt strings.Builder
 	for _, e := range decodedJson.Elements {
+		if e.Label == "" {
+			continue
+		}
 		_, err := txt.WriteString(e.Label + "\n\n")
 		if err != nil {
 			return err

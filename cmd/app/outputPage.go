@@ -9,7 +9,7 @@ import (
 	i "github.com/p-tupe/supernote-toolkit/internal"
 )
 
-var convertToOptions = []string{i.ConvertPDF, i.ConvertPNG, i.ConvertTXT}
+var convertToOptions = []string{i.ConvertPDF, i.ConvertPNG, i.ExtractTXT}
 
 func GetOutputPage(appData *AppData, cb func()) *fyne.Container {
 	convertCheckbox := widget.NewCheckGroup(convertToOptions, func(s []string) {

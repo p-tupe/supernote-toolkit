@@ -51,19 +51,21 @@ var A6X2 = &Device{
 }
 
 var A5X = &Device{
-	Name:       "Supernote Manta X",
-	Model:      "A5X",
-	PageWidth:  1404,
-	PageHeight: 1872,
-	ToRGBA:     CodeToRGBA,
+	Name:                  "Supernote Manta X",
+	Model:                 "A5X",
+	PageWidth:             1404,
+	PageHeight:            1872,
+	HorizontalOrientation: 1270, // Unsure
+	ToRGBA:                CodeToRGBA,
 }
 
 var A6X = &Device{
-	Name:       "Supernote Nomad X",
-	Model:      "A6X",
-	PageWidth:  1404,
-	PageHeight: 1872,
-	ToRGBA:     CodeToRGBA,
+	Name:                  "Supernote Nomad X",
+	Model:                 "A6X",
+	PageWidth:             1404,
+	PageHeight:            1872,
+	HorizontalOrientation: 1270, // Unsure
+	ToRGBA:                CodeToRGBA,
 }
 
 func CodeToRGBA(b byte) color.RGBA {

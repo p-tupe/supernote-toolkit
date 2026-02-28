@@ -78,6 +78,17 @@ func assertPNG(t *testing.T, path string) {
 	}
 }
 
+func assertTXT(t *testing.T, path string, wantContent bool) {
+	t.Helper()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("expected TXT at %s: %v", path, err)
+	}
+	if wantContent && len(strings.TrimSpace(string(data))) == 0 {
+		t.Fatalf("expected non-empty TXT at %s", path)
+	}
+}
+
 func assertNotExists(t *testing.T, path string) {
 	t.Helper()
 	if _, err := os.Stat(path); err == nil {
@@ -420,6 +431,46 @@ func TestA6X2(t *testing.T) {
 			for _, p := range tt.wantPNGs {
 				assertPNG(t, filepath.Join(output, p))
 			}
+		})
+	}
+}
+
+// --- TXT extraction ---
+
+func TestTXT(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		deviceDir   string
+		file        string
+		wantContent bool // true = expect non-empty text
+	}{
+		// Files with recognized text
+		{"A5X lined RTR", "A5X", "lined_v1000_1p_rtr.note", true},
+		{"A6X shapes RTR", "A6X", "shapes_v1000_1p_rtr.note", true},
+		{"A6X turkish RTR", "A6X", "blank_v1000_1p_rtr_tr.note", true},
+		{"A6X2 german RTR", "A6X2", "task_v1000_1p_rtr_de.note", true},
+		{"A5X2 text RTR", "A5X2", "text_v1000_1p_rtr.note", true},
+		// RTR enabled but no text written — TXT exists, empty
+		{"A5X2 RTR no content", "A5X2", "wip_v1000_1p_rtr.note", false},
+		{"A5X ruled RTR no content", "A5X", "ruled_v1000_10p_rtr.note", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			dir := setupFile(t, tt.deviceDir, tt.file)
+			output := t.TempDir()
+
+			_, _, code := runCLI(t, "-input", dir, "-output", output, "-pdf=false", "-txt")
+			if code != 0 {
+				t.Fatalf("exit code %d", code)
+			}
+
+			stem := strings.TrimSuffix(tt.file, ".note")
+			assertTXT(t, filepath.Join(output, stem+".txt"), tt.wantContent)
+			assertNotExists(t, filepath.Join(output, stem+".pdf"))
 		})
 	}
 }

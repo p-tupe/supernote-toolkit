@@ -270,6 +270,15 @@ func (notebook *Notebook) ToPDF(outputPath string) error {
 }
 
 func (notebook *Notebook) ToTXT(outputPath string) error {
+	if notebook.Header.FILE_RECOGN_TYPE != "1" {
+		return nil
+	}
+
+	err := os.MkdirAll(outputPath, 0o755)
+	if err != nil {
+		return err
+	}
+
 	name := strings.TrimSuffix(notebook.Name, filepath.Ext(notebook.Name))
 	f, err := os.Create(filepath.Join(outputPath, name+".txt"))
 	if err != nil {

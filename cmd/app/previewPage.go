@@ -74,11 +74,36 @@ func GetPreviewPage(appData *AppData) *fyne.Container {
 					op := filepath.Join(appData.output.Path(), input.Parents)
 
 					if slices.Contains(appData.convertTo, i.ConvertPNG) {
-						notebook.ToPNG(op)
+						wg.Add(1)
+						go func() {
+							defer wg.Done()
+							err := notebook.ToPNG(op)
+							if err != nil {
+								dialog.NewError(err, appData.mainWindow).Show()
+							}
+						}()
 					}
 
 					if slices.Contains(appData.convertTo, i.ConvertPDF) {
-						notebook.ToPDF(op)
+						wg.Add(1)
+						go func() {
+							defer wg.Done()
+							err := notebook.ToPDF(op)
+							if err != nil {
+								dialog.NewError(err, appData.mainWindow).Show()
+							}
+						}()
+					}
+
+					if slices.Contains(appData.convertTo, i.ExtractTXT) {
+						wg.Add(1)
+						go func() {
+							defer wg.Done()
+							err := notebook.ToTXT(op)
+							if err != nil {
+								dialog.NewError(err, appData.mainWindow).Show()
+							}
+						}()
 					}
 				}
 			}()

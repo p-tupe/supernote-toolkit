@@ -42,7 +42,7 @@ func main() {
 			options = append(options, i.ConvertPDF)
 		}
 		if *txt {
-			options = append(options, i.ConvertTXT)
+			options = append(options, i.ExtractTXT)
 		}
 
 		allNotes, err = i.FilterFreshNotes(allNotes, *output, options)
@@ -81,15 +81,39 @@ func main() {
 			op := filepath.Join(*output, note.Parents)
 
 			if *png {
-				notebook.ToPNG(op)
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					err := notebook.ToPNG(op)
+					if err != nil {
+						log.Println(err)
+						return
+					}
+				}()
 			}
 
 			if *pdf {
-				notebook.ToPDF(op)
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					err := notebook.ToPDF(op)
+					if err != nil {
+						log.Println(err)
+						return
+					}
+				}()
 			}
 
 			if *txt {
-				notebook.ToTXT(op)
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					err := notebook.ToTXT(op)
+					if err != nil {
+						log.Println(err)
+						return
+					}
+				}()
 			}
 		}()
 	}

@@ -11,5 +11,6 @@ Orient: `v{n}` = vertical (orientation code n), `h{n}` = horizontal
 |---|---|---|---|---|---|
 | `blank_v1000_1p.note` | vertical/1000 | 1 | no | — | baseline conversion test |
 | `blank_v1000_1p_artifacts.note` | vertical/1000 | 1 | no | — | contains layer rendering artifacts |
-| `blank_v1000_1p_rtr.note` | vertical/1000 | 1 | yes | en_US | real-time text recognition |
+| `wip_v1000_1p_rtr.note` | vertical/1000 | 1 | in-progress | en_US | real-time text recognition |
 | `blank_h1090_1p_rtr.note` | horizontal/1090 | 1 | yes | en_US | horizontal orientation |
+| `text_v1000_1p_rtr.note` | vertical/1000 | 1 | yes | — | real handwritten text content |

@@ -5,7 +5,7 @@ import "image/color"
 const (
 	ConvertPNG string = "Convert To PNG"
 	ConvertPDF string = "Convert To PDF"
-	ConvertTXT string = "Extract TXT"
+	ExtractTXT string = "Extract TXT"
 
 	DeviceAuto  string = "Infer by note"
 	DeviceManta string = "Supernote Manta A5X2"
