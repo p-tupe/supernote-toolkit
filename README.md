@@ -13,14 +13,6 @@ For now, it only converts a folder of .note files (from supernote X2 devices wit
 
 See [roadmap](#Roadmap) for planned changes. See [changelog](/CHANGELOG.md) for all changes so far.
 
-## Latest Changelog
-
-- Add support for Nomad X2 devices.
-
-- Add support for Horizontal orientations.
-
-- Add cli flag (-device) and UI radio buttons (Select Device) to manually impose a device for all notes for the conversion.
-
 ## Install
 
 Download the latest binaries from [release page](https://github.com/p-tupe/supernote-toolkit/releases/latest). Verify your download against checksum.txt included in each release. See OS-specific instructions below.
@@ -66,11 +58,3 @@ cd supernote-toolkit
 go install cmd/cli/supernote-toolkit.go
 supernote-toolkit
 ```
-
-## Upcoming Changes in v0.5
-
-- [ ] Extract Text (from Realtime notes)
-
-- [ ] UI Changes:
-  - [ ] Show a progress bar during conversion
-  - [ ] Show a log window

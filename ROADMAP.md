@@ -1,8 +1,6 @@
 ## Roadmap
 
-### Up Next v0.5
-
-- [ ] Extract Text (from Realtime notes)
+### Up Next v0.6
 
 - [ ] UI Changes:
   - [ ] Show a progress bar during conversion

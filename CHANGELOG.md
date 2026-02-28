@@ -1,3 +1,9 @@
+## v0.5 - Sat Feb 28 11:18:26 EST 2026
+
+- Add Extract Text option (from Realtime notes)
+
+- Add more devices options (X series)
+
 ## v0.4 - Wed Feb 11 16:39:07 EST 2026
 
 - Add support for Nomad X2 devices.
